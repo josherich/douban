@@ -8,7 +8,7 @@
           <a href="#" @click.prevent="logout()">退出登录</a>
         </template>
         <template v-else>
-          <router-link :to="{name: 'LoginView'}" replace>登录豆瓣</router-link>
+          <router-link :to="{name: 'LoginView'}" replace>登录</router-link>
         </template>
       </div>
       <div class="nav-item">
@@ -20,12 +20,6 @@
     <div class="quickNav" v-if="mold === 'quickNav'">
       <ul class="quick-nav">
         <li>
-          <router-link :to="{name: 'MovieView'}">影院热映</router-link>
-        </li>
-        <li>
-          <router-link :to="{name: 'StatusView'}">欧美新碟榜</router-link>
-        </li>
-        <li>
           <router-link :to="{name: 'RegisterView'}">注册帐号</router-link>
         </li>
         <li>
@@ -33,7 +27,7 @@
             <a href="#" @click.prevent="logout()">退出登录</a>
           </template>
           <template v-else>
-            <router-link :to="{name: 'LoginView'}" replace>登录豆瓣</router-link>
+            <router-link :to="{name: 'LoginView'}" replace>登录</router-link>
           </template>
         </li>
       </ul>
