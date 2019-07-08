@@ -1,15 +1,19 @@
 import request from 'superagent'
-import jsonp from 'superagent-jsonp'
+// import jsonp from 'superagent-jsonp'
 
 const state = {
   queryRes_movie: [],
   queryRes_book: [],
-  queryRes_music: []
+  queryRes_music: [],
+  queryRes_doc: []
 }
 
 const mutations = {
   query (state, payload) {
     switch (payload.tag) {
+      case 'doc':
+        state.queryRes_doc = payload.res
+        break
       case 'movie':
         state.queryRes_movie = payload.res
         break
@@ -20,7 +24,7 @@ const mutations = {
         state.queryRes_music = payload.res
         break
       default:
-        console.log('[Error]:Api is error!')
+        console.log('[Error]:Api error!')
     }
   }
 }
@@ -33,15 +37,15 @@ const actions = {
    */
   query ({ commit }, payload) {
     request
-      .get('https://api.douban.com/v2/movie/search?q=' +
+      .get('http://localhost:3000/doc/search?q=' +
         payload.queryStr + '&count=3')
-      .use(jsonp)
+      // .use(jsonp)
       .end((err, res) => {
         if (!err) {
           commit({
             type: 'query',
-            tag: 'movie',
-            res: res.body.subjects
+            tag: 'doc',
+            res: res.body
           })
         }
       })

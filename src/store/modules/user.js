@@ -68,14 +68,20 @@ const actions = {
   login ({ commit }, payload) {
     return new Promise((resolve, reject) => {
       request
-        .get('https://douban.herokuapp.com/user/' + payload.email)
+        .post('http://localhost:3000/user/signin')
         .set('Authorization', 'Bearer ' + payload.token)
+        .send({
+          email: payload.email,
+          pass: payload.pass
+        })
         .then(res => {
+          localStorage.setItem('token', res.body.token)
+          localStorage.setItem('email', res.body.email)
+
           commit({
             type: 'setUser',
             email: res.body.email,
-            token: res.body.token,
-            name: res.body.name
+            token: res.body.token
           })
           resolve(res)
         }, err => {
@@ -93,7 +99,7 @@ const actions = {
   register ({ commit }, payload) {
     return new Promise((resolve, reject) => {
       request
-        .post('https://douban.herokuapp.com/user/')
+        .post('http://localhost:3000/user/')
         .send({
           email: payload.email,
           pass: payload.pass,

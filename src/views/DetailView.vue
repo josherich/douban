@@ -1,53 +1,68 @@
 <template>
   <div class="detail-view has-header">
-    <banner title="每天看点好内容"></banner>
     <template v-if="!showLoading">
       <div class="info">
         <h2>
-          {{eventItem.title}}
-          <span class="badge">{{eventItem.loc_name}}</span>
+          {{docItem.title}}
         </h2>
         <div class="poster">
-          <img :src="eventItem.image_hlarge" alt="">
+          <img :src="docItem.image" alt="">
         </div>
+
         <div class="detail">
-          <span>时间:&nbsp;&nbsp;</span>
+          <span>Authors:&nbsp;&nbsp;</span>
           <ul>
-            <li>{{eventItem.begin_time}}</li>
-            <li>{{eventItem.end_time}}</li>
+            <li>
+            <template v-for="author in docItem.author">
+              <span class="badge">{{author}}</span>
+            </template>
+            </li>
           </ul>
         </div>
+
         <div class="detail">
-          <span>地点:&nbsp;&nbsp;</span>
+          <span><rating v-if="docItem.title" :rating="{average: docItem.rating}"></rating></span>
           <ul>
-            <li>{{eventItem.address}}</li>
+            <li></li>
           </ul>
         </div>
+
         <div class="detail">
-          <span>费用:&nbsp;&nbsp;</span>
+          <span><a :href="docItem.uri">Download</a></span>
           <ul>
-            <li>{{eventItem.fee_str}}</li>
+            <li></li>
           </ul>
         </div>
+
         <div class="detail">
-          <span>类型:&nbsp;&nbsp;</span>
+          <span>Publisher:&nbsp;&nbsp;</span>
           <ul>
-            <li>{{eventItem.category_name}}</li>
+            <li>{{docItem.publisher}}</li>
           </ul>
         </div>
+
         <div class="detail">
-          <span>起始时间:&nbsp;&nbsp;</span>
+          <span>Summary:&nbsp;&nbsp;</span>
           <ul>
-            <li v-if="eventItem.owner">{{eventItem.owner.name}}</li>
+            <li>{{docItem.summary}}</li>
           </ul>
         </div>
-        <tags v-if="eventItem.tags" :items="eventItem.tags | toArray"></tags>
-        <div class="describe">
-          <h2>活动详情</h2>
-          <div v-if="eventItem.content" class="content" v-html="content"></div>
+
+        <div class="detail">
+          <span>Created at:&nbsp;&nbsp;</span>
+          <ul>
+            <li>{{(new Date(docItem.createdAt)).toDateString()}}</li>
+          </ul>
         </div>
+
+        <div class="detail">
+          <span>Category:&nbsp;&nbsp;</span>
+          <ul>
+            <li>{{docItem.category}}</li>
+          </ul>
+        </div>
+
       </div>
-      <download-app></download-app>
     </template>
     <loading v-show="showLoading"></loading>
   </div>
@@ -59,10 +74,11 @@ import Banner from '../components/Banner'
 import Tags from '../components/Tags'
 import DownloadApp from '../components/DownloadApp'
 import Loading from '../components/Loading'
+import Rating from '../components/Rating'
 
 export default {
   name: 'detail-view',
-  components: { Banner, Tags, DownloadApp, Loading },
+  components: { Banner, Tags, DownloadApp, Loading, Rating },
   data () {
     return {
       showLoading: true
@@ -77,11 +93,11 @@ export default {
     content: function () {
       // Careful XSS
       // Remove copyright imgs
-      return this.eventItem.content.replace(/<img.+?>/ig, '')
+      return this.docItem.content.replace(/<img.+?>/ig, '')
     },
     // Getting Vuex State from store/modules/activities
     ...mapState({
-      eventItem: state => state.activities.eventItem
+      docItem: state => state.docs.docItem
     })
   },
   created () {
@@ -90,7 +106,7 @@ export default {
 
     // Dispatching getSingleEvent
     this.$store.dispatch({
-      type: 'getSingleEvent',
+      type: 'getSingleDoc',
       id: id
     }).then(res => {
       // Success handle
@@ -101,6 +117,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.detail-view {
+  margin-top: 12em;
+}
 .info {
   margin: 1rem;
 
@@ -114,6 +133,7 @@ export default {
     display: inline-block;
     padding: 0.1rem 0.5rem;
     margin-bottom: 0.3rem;
+    margin-right: 10px;
     vertical-align: middle;
     line-height: 1.8rem;
     font-size: 1.2rem;
@@ -141,10 +161,9 @@ export default {
   font-size: 1.4rem;
   clear: left;
 
-  span {
+  > span {
     float: left;
     margin-left: -3.3rem;
-    line-height: 150%;
     color: #666666;
   }
 

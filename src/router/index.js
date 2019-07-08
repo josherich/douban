@@ -3,15 +3,11 @@ import Router from 'vue-router'
 
 import PagesView from '../views/PagesView'
 import HomeView from '../views/HomeView'
-import MovieView from '../views/MovieView'
-import BookView from '../views/BookView'
-import StatusView from '../views/StatusView'
-import GroupView from '../views/GroupView'
-import SubjectView from '../views/SubjectView'
 import DetailView from '../views/DetailView'
 import SearchView from '../views/SearchView'
 import LoginView from '../views/LoginView'
 import RegisterView from '../views/RegisterView'
+import NewDocView from '../views/NewDocView'
 
 Vue.use(Router)
 
@@ -35,26 +31,6 @@ export default new Router({
           component: HomeView
         },
         {
-          path: 'movie',
-          name: 'MovieView',
-          component: MovieView
-        },
-        {
-          path: 'book',
-          name: 'BookView',
-          component: BookView
-        },
-        {
-          path: 'status',
-          name: 'StatusView',
-          component: StatusView
-        },
-        {
-          path: 'group',
-          name: 'GroupView',
-          component: GroupView
-        },
-        {
           path: 'detail/:id',
           name: 'DetailView',
           component: DetailView
@@ -62,12 +38,9 @@ export default new Router({
       ]
     },
     {
-      path: '/pages/:classify/subject/:id',
-      name: 'SubjectView',
-      components: {
-        default: PagesView,
-        subject: SubjectView
-      }
+      path: '/doc/new',
+      name: 'NewDocView',
+      component: NewDocView
     },
     {
       path: '/search',

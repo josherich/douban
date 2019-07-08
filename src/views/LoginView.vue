@@ -1,31 +1,31 @@
 <template>
   <div class="login-view">
     <h1>
-      <a href="javascript:history.go(-1);">取消</a>登录
+      <a href="javascript:history.go(-1);">Cancel</a>Sign in
     </h1>
     <form method="get" @submit.prevent="onSubmit()">
       <p v-if="error" class="tip error">{{error}}</p>
       <div class="form-user">
         <label>
-          <strong>邮箱</strong>
+          <strong>Email</strong>
           <input
             v-model="email"
             type="email"
             name="email"
             @input="updateData"
-            placeholder="邮箱">
+            placeholder="Email">
         </label>
       </div>
       <div class="form-pwd">
         <label>
-          <strong>请输入密码</strong>
+          <strong>Password</strong>
           <template v-if="passType === 'password'">
             <input
-            v-model="token"
+            v-model="pass"
             type="password"
-            name="token"
+            name="pass"
             @input="updateData"
-            placeholder="Token">
+            placeholder="Password">
           </template>
           <template v-if="passType === 'text'">
             <input
@@ -53,10 +53,9 @@
       </div>
     </form>
     <div class="footer">
-      <div class="more-login">使用其他方式登录 &amp; 找回密码</div>
+      <div class="more-login">forget password?</div>
       <div class="btns">
-        <router-link :to="{name: 'RegisterView'}">注册帐号</router-link>
-        <!-- <a href="#">下载豆瓣App</a> -->
+        <router-link :to="{name: 'RegisterView'}">Sign up</router-link>
       </div>
     </div>
   </div>
@@ -64,16 +63,18 @@
 
 <script>
 import { mapState } from 'vuex'
+import crypto from 'crypto'
 
 export default {
   name: 'login-view',
   data () {
     return {
-      loginState: '登录',
+      loginState: 'Sign in',
       isDisabled: false,    // Disabled submit button
       isShow: 0,            // Show pwd
       passType: 'password',
-      error: ''             // Verification results
+      error: '',             // Verification results
+      pass: ''
     }
   },
   computed: {
@@ -99,11 +100,11 @@ export default {
     beforeSubmit: function () {
       // console.log('Submiting...')
       this.isDisabled = true
-      this.loginState = '正在登录...'
+      this.loginState = 'sign in...'
     },
     onSuccess: function (res) {
       // console.log('complete!')
-      this.$router.push({name: 'StatusView'})
+      this.$router.push({name: 'HomeView'})
     },
     onError: function (err) {
       // console.log(err)
@@ -115,9 +116,15 @@ export default {
       // Disabled submit button
       this.beforeSubmit()
       // Login...
+      const hashedPass = crypto
+        .createHash('md5')
+        .update(this.pass)
+        .digest('hex')
+
       this.$store.dispatch({
         type: 'login',
         email: this.email,
+        pass: hashedPass,
         token: this.token
       }).then(res => {
         // Success handle

@@ -1,7 +1,7 @@
 <template>
   <div class="talion-view">
     <div class="header-bar">
-      <span class="close-talion" @click="closeTalion">关闭</span>
+      <span class="close-talion" @click="closeTalion">Close</span>
       <form class="search" onsubmit="return false">
         <input
           type="search"
@@ -112,10 +112,14 @@ export default {
 .talion-view {
   position: fixed;
   top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   background-color: #fff;
   z-index: 999;
+  .has-header {
+    display: none;
+  }
 }
 
 .close-talion {

@@ -1,7 +1,7 @@
 <template>
   <div class="rating" v-if="rating">
     <template v-if="full === 0">
-      <span>暂无评分</span>
+      <span>No Ratings</span>
     </template>
     <template v-else>
       <template v-for="n in full">

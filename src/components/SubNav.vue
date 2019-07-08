@@ -3,33 +3,34 @@
     <!-- Bottom nav -->
     <div class="navBottom" v-if="mold === 'navBottom'">
       <div class="nav-item">
-        <router-link :to="{name: 'RegisterView'}">注册帐号</router-link><!-- replace blank
-        --><template v-if="currentUser.email">
-          <a href="#" @click.prevent="logout()">退出登录</a>
+        <template v-if="currentUser.email">
+          <a href="#" @click.prevent="logout()">Sign out</a>
         </template>
         <template v-else>
-          <router-link :to="{name: 'LoginView'}" replace>登录</router-link>
+          <router-link :to="{name: 'RegisterView'}">Sign up</router-link><!-- replace blank
+          --><router-link :to="{name: 'LoginView'}" replace>Sign in</router-link>
         </template>
-      </div>
-      <div class="nav-item">
-        <a href="https://movie.douban.com/">使用桌面版</a><!-- replace blank
-        --><a href="#">使用豆瓣App</a>
       </div>
     </div>
     <!-- Quick start nav -->
     <div class="quickNav" v-if="mold === 'quickNav'">
       <ul class="quick-nav">
+        <template v-if="currentUser.email">
         <li>
-          <router-link :to="{name: 'RegisterView'}">注册帐号</router-link>
+          <a href="#" @click.prevent="logout()">Sign out</a>
         </li>
         <li>
-          <template v-if="currentUser.email">
-            <a href="#" @click.prevent="logout()">退出登录</a>
-          </template>
-          <template v-else>
-            <router-link :to="{name: 'LoginView'}" replace>登录</router-link>
-          </template>
+          <router-link :to="{ name: 'NewDocView'}">New</router-link>
         </li>
+        </template>
+        <template v-else>
+        <li>
+          <router-link :to="{name: 'RegisterView'}">Sign up</router-link>
+        </li>
+        <li>
+          <router-link :to="{name: 'LoginView'}" replace>Sign in</router-link>
+        </li>
+        </template>
       </ul>
     </div>
   </div>
@@ -54,7 +55,7 @@ export default {
       return this.currentUser.name ? 'StatusView' : 'LoginView'
     },
     holder: function () {
-      return this.currentUser.name ? this.currentUser.name : '请先登录'
+      return this.currentUser.name ? this.currentUser.name : 'sign in'
     },
     // Map store/user state
     ...mapGetters(['currentUser'])
