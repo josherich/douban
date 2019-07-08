@@ -27,7 +27,7 @@ const actions = {
   newdoc ({ commit }, payload) {
     return new Promise((resolve, reject) => {
       request
-        .post('http://localhost:3000/doc/')
+        .post('http://paperapi.mindynode.com/doc/')
         .set('Authorization', 'Bearer ' + localStorage.getItem('token'))
         .send(payload)
         .then(res => {
@@ -45,7 +45,7 @@ const actions = {
   loadMoreDocs ({commit, state}) {
     if (state.noMore) return
     request
-      .get('http://localhost:3000/doc?start=' +
+      .get('http://paperapi.mindynode.com/doc?start=' +
         state.skip + '&count=3')
       // .use(jsonp)
       .end((err, res) => {
@@ -64,7 +64,7 @@ const actions = {
   getSingleDoc ({commit, state}, payload) {
     return new Promise((resolve, reject) => {
       request
-        .get('http://localhost:3000/doc/' + payload.id)
+        .get('http://paperapi.mindynode.com/doc/' + payload.id)
         // .use(jsonp)
         .end((err, res) => {
           if (!err) {

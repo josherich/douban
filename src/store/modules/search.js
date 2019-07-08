@@ -37,7 +37,7 @@ const actions = {
    */
   query ({ commit }, payload) {
     request
-      .get('http://localhost:3000/doc/search?q=' +
+      .get('http://paperapi.mindynode.com/doc/search?q=' +
         payload.queryStr + '&count=3')
       // .use(jsonp)
       .end((err, res) => {
