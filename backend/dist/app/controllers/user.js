@@ -111,7 +111,7 @@ function () {
             token = jwt.sign({
               username: name,
               email: email,
-              exp: Math.floor(Date.now() / 1000) + 600
+              exp: Math.floor(Date.now() / 1000) + 3 * 30 * 24 * 3600
             }, 'shxhxhxhx');
             _context2.next = 7;
             return req.context.models.User.create({
