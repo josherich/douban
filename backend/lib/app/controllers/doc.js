@@ -10,32 +10,66 @@ module.exports = function (app) {
   app.use('/doc', router)
 }
 
+
+const verify = async (req, res) => {
+  const token = req.get('Authorization').split(' ')[1]
+  try {
+    const decoded = jwt.verify(token, 'shxhxhxhx')
+    const user = await req.context.models.User.findOne({ where: { email: decoded['email'] } })
+    if (!user) {
+      return new Error('user not found')
+    } else {
+      return user
+    }
+  } catch (err) {
+    return new Error(err)
+  }
+}
+
+/* update todo. */
+router.put('/:id', async (req, res, next) => {
+  const id = req.params.id;
+  const doc = await req.context.models.Doc.findByPk(
+    req.params.id,
+  )
+  // Verify
+  const user = await verify(req, res)
+
+  if (user instanceof Error) {
+    res.status(401).send({
+      error: 'Invalid token.' + user.toString()
+    })
+    return
+  }
+  // console.log(user.id, doc.user.id)
+  const has = await user.hasDocs(doc)
+
+  if (has) {
+    const updated = await doc.update(req.body)
+    return res.status(200).send(updated)
+  } else {
+    res.status(401).send({
+      error: 'Invalid user.'
+    })
+  }
+
+});
+
 // Create doc
 router.post('/', async (req, res, next) => {
   const title = req.body.title
   const uri = req.body.uri
   const author = req.body.author
 
-  const user = null
-  const token = req.get('Authorization').split(' ')[1]
-
   // Verify
-  jwt.verify(token, 'shxhxhxhx', async (err, decoded) => {
-    if (err) {
-      res.status(401).send({
-       error: 'Invalid token.' + err
-      })
-      return
-    } else {
-      user = await req.context.models.User.findOne({ where: { email: decoded['email'] } })
-      if (!user) {
-        res.status(401).send({
-         error: 'User not found.'
-        })
-        return
-      }
-    }
-  })
+  const user = await verify(req, res)
+
+  if (user instanceof Error) {
+    res.status(401).send({
+     error: 'Invalid token.' + err
+    })
+    return
+  }
 
   // Validator
   if (!validator.isEmpty(title) &&
@@ -75,7 +109,7 @@ router.get('/', async (req, res, next) => {
   return res.send(docs)
 });
 
-// Get user
+// Get doc
 router.get('/:id', async (req, res, next) => {
   var id = req.params.id
 
@@ -84,3 +118,35 @@ router.get('/:id', async (req, res, next) => {
   )
   return res.status(200).send(doc)
 })
+
+// Delete doc
+router.post('/:id/delete', async (req, res, next) => {
+  var id = req.params.id
+
+  const doc = await req.context.models.Doc.findByPk(
+    req.params.id,
+  )
+
+  // Verify
+  const user = await verify(req, res)
+
+  if (user instanceof Error) {
+    res.status(401).send({
+      error: 'Invalid token.' + user.toString()
+    })
+    return
+  }
+  // console.log(user.id, doc.user.id)
+  const has = await user.hasDocs(doc)
+
+  if (has) {
+    doc.destroy()
+    return res.status(200).send(doc)
+  } else {
+    res.status(401).send({
+      error: 'Invalid user.'
+    })
+  }
+
+})
+

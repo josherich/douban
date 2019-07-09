@@ -63,6 +63,31 @@
         </div>
 
       </div>
+
+      <form method="post" @submit.prevent="onSubmit()">
+        <div class="form-submit">
+          <button
+            class="submit"
+            type="submit"
+            :disabled="isDisabled"
+            :class="{disabled: isDisabled}">
+            Delete
+          </button>
+        </div>
+      </form>
+
+      <router-link
+        class="thumbnail"
+        :to="{name: 'EditView', params: { id: docItem.id }}">
+        <button
+          class="submit"
+          type="submit"
+          :disabled="isDisabled"
+          :class="{disabled: isDisabled}">
+          Edit
+        </button>
+      </router-link>
+
     </template>
     <loading v-show="showLoading"></loading>
   </div>
@@ -81,7 +106,8 @@ export default {
   components: { Banner, Tags, DownloadApp, Loading, Rating },
   data () {
     return {
-      showLoading: true
+      showLoading: true,
+      isDisabled: false
     }
   },
   filters: {
@@ -99,6 +125,36 @@ export default {
     ...mapState({
       docItem: state => state.docs.docItem
     })
+  },
+  methods: {
+    beforeSubmit: function () {
+      // console.log('Submiting...')
+      this.isDisabled = true
+    },
+    onSuccess: function (res) {
+      // console.log('complete!')
+      this.$router.push({name: 'HomeView'})
+    },
+    onError: function (err) {
+      // console.log(err)
+      this.error = err.body.error
+      this.isDisabled = false
+    },
+    onSubmit: function () {
+      // Disabled submit button
+      this.beforeSubmit()
+      // Login...
+      this.$store.dispatch({
+        type: 'deletedoc',
+        id: this.$route.params.id
+      }).then(res => {
+        // Success handle
+        this.onSuccess(res)
+      }, err => {
+        // Error handle
+        this.onError(err)
+      })
+    }
   },
   created () {
     // Getting route params

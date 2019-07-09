@@ -1,5 +1,6 @@
 import request from 'superagent'
 // import jsonp from 'superagent-jsonp'
+import config from '@/config'
 
 const state = {
   docs: [],
@@ -27,9 +28,34 @@ const actions = {
   newdoc ({ commit }, payload) {
     return new Promise((resolve, reject) => {
       request
-        .post('http://paperapi.mindynode.com/doc/')
+        .post(config.api + '/doc/')
         .set('Authorization', 'Bearer ' + localStorage.getItem('token'))
         .send(payload)
+        .then(res => {
+          resolve(res)
+        }, err => {
+          reject(err)
+        })
+    })
+  },
+  updatedoc ({ commit }, payload) {
+    return new Promise((resolve, reject) => {
+      request
+        .put(config.api + `/doc/${payload.id}`)
+        .set('Authorization', 'Bearer ' + localStorage.getItem('token'))
+        .send(payload.item)
+        .then(res => {
+          resolve(res)
+        }, err => {
+          reject(err)
+        })
+    })
+  },
+  deletedoc ({ commit }, payload) {
+    return new Promise((resolve, reject) => {
+      request
+        .post(config.api + `/doc/${payload.id}/delete`)
+        .set('Authorization', 'Bearer ' + localStorage.getItem('token'))
         .then(res => {
           resolve(res)
         }, err => {
@@ -45,7 +71,7 @@ const actions = {
   loadMoreDocs ({commit, state}) {
     if (state.noMore) return
     request
-      .get('http://paperapi.mindynode.com/doc?start=' +
+      .get(config.api + '/doc?start=' +
         state.skip + '&count=3')
       // .use(jsonp)
       .end((err, res) => {
@@ -64,7 +90,7 @@ const actions = {
   getSingleDoc ({commit, state}, payload) {
     return new Promise((resolve, reject) => {
       request
-        .get('http://paperapi.mindynode.com/doc/' + payload.id)
+        .get(config.api + '/doc/' + payload.id)
         // .use(jsonp)
         .end((err, res) => {
           if (!err) {

@@ -8,6 +8,7 @@ import SearchView from '../views/SearchView'
 import LoginView from '../views/LoginView'
 import RegisterView from '../views/RegisterView'
 import NewDocView from '../views/NewDocView'
+import EditView from '../views/EditDocView'
 
 Vue.use(Router)
 
@@ -34,6 +35,11 @@ export default new Router({
           path: 'detail/:id',
           name: 'DetailView',
           component: DetailView
+        },
+        {
+          path: 'edit/:id',
+          name: 'EditView',
+          component: EditView
         }
       ]
     },

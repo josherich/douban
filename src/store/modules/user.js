@@ -1,4 +1,5 @@
 import request from 'superagent'
+import config from '@/config'
 
 const state = {
   login_email: '',
@@ -68,7 +69,7 @@ const actions = {
   login ({ commit }, payload) {
     return new Promise((resolve, reject) => {
       request
-        .post('http://paperapi.mindynode.com/user/signin')
+        .post(config.api + '/user/signin')
         .set('Authorization', 'Bearer ' + payload.token)
         .send({
           email: payload.email,
@@ -99,7 +100,7 @@ const actions = {
   register ({ commit }, payload) {
     return new Promise((resolve, reject) => {
       request
-        .post('http://paperapi.mindynode.com/user/')
+        .post(config.api + '/user/')
         .send({
           email: payload.email,
           pass: payload.pass,

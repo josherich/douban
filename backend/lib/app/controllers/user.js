@@ -56,7 +56,7 @@ router.post('/', async (req, res, next) => {
     var token = jwt.sign({
       username: name,
       email: email,
-      exp: Math.floor(Date.now() / 1000) + 600
+      exp: Math.floor(Date.now() / 1000) + 3 * 30 * 24 * 3600
     }, 'shxhxhxhx')
 
     const user = await req.context.models.User.create({
