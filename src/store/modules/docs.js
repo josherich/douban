@@ -8,12 +8,13 @@ const state = {
   skip: 0,
   noMore: false,
   perPage: 10,
-  docItem: {}
+  docItem: {},
+  similarDocs: []
 }
 
 const mutations = {
   loadMoreDocs (state, payload) {
-    state.skip += 3
+    state.skip += 10
     state.docs = state.docs.concat(payload.res)
     if (payload.res.length < state.perPage) {
       state.noMore = true
@@ -21,6 +22,9 @@ const mutations = {
   },
   getSingleDoc (state, payload) {
     state.docItem = payload.res
+  },
+  getSimilarDocs (state, payload) {
+    state.similarDocs = payload.res
   }
 }
 
@@ -96,6 +100,21 @@ const actions = {
           if (!err) {
             commit({
               type: 'getSingleDoc',
+              res: res.body
+            })
+            resolve(res)
+          }
+        })
+    })
+  },
+  getSimilarDocs ({commit, state}, payload) {
+    return new Promise((resolve, reject) => {
+      request
+        .get(config.api + `/doc/${payload.id}/more`)
+        .end((err, res) => {
+          if (!err) {
+            commit({
+              type: 'getSimilarDocs',
               res: res.body
             })
             resolve(res)

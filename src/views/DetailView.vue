@@ -64,32 +64,35 @@
 
       </div>
 
-      <form method="post" @submit.prevent="onSubmit()">
-        <div class="form-submit">
-          <button
-            class="submit"
-            type="submit"
-            :disabled="isDisabled"
-            :class="{disabled: isDisabled}">
-            Delete
-          </button>
-        </div>
-      </form>
+    </template>
+    <loading v-show="showLoading"></loading>
+    <h1 class="related-title">Related Papers</h1>
+    <d-list class="similar-docs" mold="thumbnail" :items="similarDocs"></d-list>
 
-      <router-link
-        class="thumbnail"
-        :to="{name: 'EditView', params: { id: docItem.id }}">
+    <form method="post" @submit.prevent="onSubmit()">
+      <div class="form-submit">
         <button
           class="submit"
           type="submit"
           :disabled="isDisabled"
           :class="{disabled: isDisabled}">
-          Edit
+          Delete
         </button>
-      </router-link>
+      </div>
+    </form>
 
-    </template>
-    <loading v-show="showLoading"></loading>
+    <router-link
+      class="thumbnail"
+      :to="{name: 'EditView', params: { id: docItem.id }}">
+      <button
+        class="submit"
+        type="submit"
+        :disabled="isDisabled"
+        :class="{disabled: isDisabled}">
+        Edit
+      </button>
+    </router-link>
+
   </div>
 </template>
 
@@ -100,10 +103,11 @@ import Tags from '../components/Tags'
 import DownloadApp from '../components/DownloadApp'
 import Loading from '../components/Loading'
 import Rating from '../components/Rating'
+import DList from '../components/DList'
 
 export default {
   name: 'detail-view',
-  components: { Banner, Tags, DownloadApp, Loading, Rating },
+  components: { Banner, Tags, DownloadApp, Loading, Rating, DList },
   data () {
     return {
       showLoading: true,
@@ -123,7 +127,8 @@ export default {
     },
     // Getting Vuex State from store/modules/activities
     ...mapState({
-      docItem: state => state.docs.docItem
+      docItem: state => state.docs.docItem,
+      similarDocs: state => state.docs.similarDocs
     })
   },
   methods: {
@@ -154,6 +159,14 @@ export default {
         // Error handle
         this.onError(err)
       })
+    },
+    onGetSimilarDocs: function (res) {
+      console.log(res)
+      // Dispatching getSingleEvent
+      this.$store.dispatch({
+        type: 'getSimilarDocs',
+        id: this.$route.params.id
+      })
     }
   },
   created () {
@@ -166,6 +179,7 @@ export default {
       id: id
     }).then(res => {
       // Success handle
+      this.onGetSimilarDocs(res)
       this.showLoading = false
     })
   }
@@ -176,8 +190,15 @@ export default {
 .detail-view {
   margin-top: 12em;
 }
+h1.related-title {
+  margin: 4rem 0 4rem 1.8rem;
+}
+.similar-docs {
+  margin-top: 1em;
+}
 .info {
   margin: 1rem;
+  margin-left: 1.8rem;
 
   h2 {
     margin: 2rem 0;

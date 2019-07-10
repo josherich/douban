@@ -1,15 +1,20 @@
 var express = require('express')
 var router = express.Router()
 var jwt = require('jsonwebtoken')
-
 var validator = require('validator')
+var fs = require('fs')
 
 import Sequelize from 'sequelize'
+var sim_dict = JSON.parse(fs.readFileSync('./data/sim_dict.json', 'utf8'))
 
 module.exports = function (app) {
   app.use('/doc', router)
 }
 
+const query_sim = (uuid) => {
+  const list = sim_dict[`${uuid}.pdf`] || []
+  return list.map(row => row.replace('.pdf', ''))
+}
 
 const verify = async (req, res) => {
   const token = req.get('Authorization').split(' ')[1]
@@ -105,7 +110,9 @@ router.get('/search', async (req, res, next) => {
 })
 
 router.get('/', async (req, res, next) => {
-  const docs = await req.context.models.Doc.findAll()
+  const offset = req.query.start || 0
+  const limit = req.query.limit || 10
+  const docs = await req.context.models.Doc.findAll({ offset: offset, limit: limit })
   return res.send(docs)
 });
 
@@ -117,6 +124,30 @@ router.get('/:id', async (req, res, next) => {
     req.params.id,
   )
   return res.status(200).send(doc)
+})
+
+// Get similar docs
+router.get('/:id/more', async (req, res, next) => {
+  const id = req.params.id
+  const limit = req.query.limit || 10
+
+  const doc = await req.context.models.Doc.findByPk(
+    req.params.id,
+  )
+  const more_docs_uuid = query_sim(doc.uuid) || []
+  const more_docs = await req.context.models.Doc.findAll({
+    where: {
+      uuid: {
+        [Sequelize.Op.or]: more_docs_uuid
+      }
+    },
+    limit: limit
+  })
+
+  more_docs.sort((doc1, doc2) => {
+    return more_docs_uuid.indexOf(doc1.uuid) - more_docs_uuid.indexOf(doc2.uuid)
+  })
+  return res.status(200).send(more_docs)
 })
 
 // Delete doc
