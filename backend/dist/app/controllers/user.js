@@ -103,7 +103,7 @@ function () {
               min: 2,
               max: 10
             }))) {
-              _context2.next = 11;
+              _context2.next = 17;
               break;
             }
 
@@ -113,35 +113,47 @@ function () {
               email: email,
               exp: Math.floor(Date.now() / 1000) + 3 * 30 * 24 * 3600
             }, 'shxhxhxhx');
-            _context2.next = 7;
+            _context2.prev = 5;
+            _context2.next = 8;
             return req.context.models.User.create({
               username: name,
               email: email,
               password: pass
             });
 
-          case 7:
+          case 8:
             user = _context2.sent;
             res.status(200).send({
               username: name,
               email: email,
               token: token
             });
-            _context2.next = 12;
+            _context2.next = 15;
             break;
 
-          case 11:
+          case 12:
+            _context2.prev = 12;
+            _context2.t0 = _context2["catch"](5);
+            res.status(401).send({
+              error: _context2.t0.errors[0].message
+            });
+
+          case 15:
+            _context2.next = 18;
+            break;
+
+          case 17:
             // Error handle
-            res.status(400).send({
+            res.status(401).send({
               error: 'Missing field'
             });
 
-          case 12:
+          case 18:
           case "end":
             return _context2.stop();
         }
       }
-    }, _callee2);
+    }, _callee2, null, [[5, 12]]);
   }));
 
   return function (_x4, _x5, _x6) {
