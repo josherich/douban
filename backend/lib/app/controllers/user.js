@@ -59,20 +59,26 @@ router.post('/', async (req, res, next) => {
       exp: Math.floor(Date.now() / 1000) + 3 * 30 * 24 * 3600
     }, 'shxhxhxhx')
 
-    const user = await req.context.models.User.create({
+    try {
+      const user = await req.context.models.User.create({
         username: name,
         email: email,
         password: pass
-      });
+      })
+      res.status(200).send({
+        username: name,
+        email: email,
+        token: token
+      })
+    } catch (err) {
+      res.status(401).send({
+        error: err.errors[0].message
+      })
+    }
 
-    res.status(200).send({
-      username: name,
-      email: email,
-      token: token
-    })
   } else {
     // Error handle
-    res.status(400).send({
+    res.status(401).send({
       error: 'Missing field'
     })
   }

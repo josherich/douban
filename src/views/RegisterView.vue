@@ -1,68 +1,57 @@
 <template>
   <div class="register-view">
     <template v-if="isComplete">
-      <h1 class="title">注册成功</h1>
+      <h1 class="title">You are signed up.</h1>
       <form method="post" onsubmit="return false">
-        <p class="tip">请复制以下Token进行登录</p>
-        <div class="form-alias">
-          <label>
-            <strong>token</strong>
-            <input
-              v-model="token"
-              type="text"
-              name="token"
-              placeholder="token">
-          </label>
-        </div>
         <div class="form-submit">
-          <router-link class="submit" :to="{ name: 'LoginView'}" tag="button">
-            去登录
+          <router-link class="submit" :to="{name: 'LoginView'}" tag="button" replace>
+            go sign in
           </router-link>
         </div>
       </form>
     </template>
     <template v-else>
-      <h1 class="title">欢迎加入豆瓣</h1>
+      <h1 class="title">Welcome to Paper Reads</h1>
       <form method="post" @submit.prevent="onSubmit()">
         <p v-if="error" class="tip error">{{error}}</p>
         <div class="form-alias">
           <label>
-            <strong>邮箱</strong>
+            <strong>Email</strong>
             <input
               v-model.trim="email"
               type="text"
               name="email"
-              placeholder="邮箱">
+              placeholder="Email">
           </label>
         </div>
         <div class="form-pwd">
           <label>
-              <strong>请输入密码</strong>
+              <strong>Password</strong>
               <template v-if="passType === 'password'">
                 <input
                 v-model.trim="pass"
                 type="password"
                 name="pass"
-                placeholder="密码">
+                placeholder="Password">
               </template>
               <template v-if="passType === 'text'">
                 <input
                 v-model.trim="pass"
                 type="text"
                 name="pass"
-                placeholder="密码">
+                placeholder="Password">
               </template>
               <span class="show-pwd" :class="{show: isShow}" @click="showPwd()"></span>
           </label>
         </div>
         <div class="form-name">
           <label>
-            <strong>用户名</strong>
+            <strong>username</strong>
             <input
               v-model.trim="name"
               type="text"
               name="name"
-              placeholder="用户名">
+              placeholder="Username">
           </label>
         </div>
         <div class="form-submit">
@@ -76,16 +65,15 @@
         </div>
       </form>
       <div class="footer">
-        <div class="agreement">点击「注册」代表你已阅读并同意用户使用协议</div>
-        <div class="btns">
-          <a href="#">下载豆瓣App</a>
-        </div>
+        <div class="agreement"></div>
       </div>
     </template>
   </div>
 </template>
 
 <script>
+import crypto from 'crypto'
+
 export default {
   name: 'register-view',
   data () {
@@ -93,7 +81,7 @@ export default {
       isComplete: false,        // Registration completed
       isDisabled: false,        // Disabled submit button
       isShow: 0,                // Show pwd
-      registerState: '立即注册',
+      registerState: 'Sign up',
       passType: 'password',     // Password input type
       error: '',                // Verification results
       email: '',
@@ -110,7 +98,7 @@ export default {
     beforeSubmit: function () {
       // console.log('Submiting...')
       this.isDisabled = true
-      this.registerState = '正在提交...'
+      this.registerState = 'submitting...'
     },
     onSuccess: function (res) {
       // console.log('complete!')
@@ -119,17 +107,23 @@ export default {
     },
     onError: function (err) {
       this.error = err.body.error
-      this.registerState = '立即注册'
+      this.registerState = 'sign up'
       this.isDisabled = false
     },
     onSubmit: function () {
       // Disabled submit button
       this.beforeSubmit()
+
+      const hashedPass = crypto
+        .createHash('md5')
+        .update(this.pass)
+        .digest('hex')
+
       // Regist...
       this.$store.dispatch({
         type: 'register',
         email: this.email,
-        pass: this.pass,
+        pass: hashedPass,
         name: this.name
       }).then(res => {
         // Success handle
