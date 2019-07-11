@@ -131,6 +131,19 @@ export default {
       similarDocs: state => state.docs.similarDocs
     })
   },
+  watch: {
+    '$route' (to, from) {
+      const id = to.params.id
+      this.$store.dispatch({
+        type: 'getSingleDoc',
+        id: id
+      }).then(res => {
+        // Success handle
+        this.onGetSimilarDocs(res)
+        this.showLoading = false
+      })
+    }
+  },
   methods: {
     beforeSubmit: function () {
       // console.log('Submiting...')

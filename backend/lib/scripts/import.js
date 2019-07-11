@@ -1,11 +1,10 @@
 import 'dotenv/config';
+import '@babel/polyfill';
+import models from '../app/models'
+
 const Sequelize = require('sequelize');
 const fs = require('fs')
 const path = require('path')
-
-// read csv file list
-// import to postgres
-import models from '../app/models'
 
 if (process.argv.length < 3) {
   console.log('run node import.js [data_path]')
@@ -34,15 +33,15 @@ file_list
   }
 })
 
-// console.log(file_dict)
-
-const txt_folder = fs.readdirSync(`${data_path}/txt`)
+const txt_folder = fs.readdirSync(`${data_path}.txt`)
 .forEach(file => {
-  console.log(file)
-  let text = fs.readFileSync(path.join(`${data_path}/txt`, file), 'utf8')
+  let text = fs.readFileSync(path.join(`${data_path}.txt`, file), 'utf8')
   let uuid = file.split('.')[0]
-  console.log(uuid)
-  file_dict[uuid]['title'] = text.split('\n')[0]
+  if (file_dict[uuid])
+    file_dict[uuid]['title'] = text.split('\n')[0]
+  else {
+    console.log('txt file id not found in csv', uuid)
+  }
 })
 
 const createFromFile = (obj) => {
@@ -57,8 +56,6 @@ const createFromFile = (obj) => {
 let docs_to_write = Object.keys(file_dict).map(id => {
   return createFromFile(file_dict[id])
 })
-
-console.log(docs_to_write)
 
 models.Doc.bulkCreate(docs_to_write)
 .then(() => {

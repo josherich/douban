@@ -7,4 +7,7 @@ Douban for academic notes, a fork of [douban clone](https://github.com/jeneser/d
 `npx babel lib -d dist && node dist/app.js`
 
 ### migrate
-`npx sequelize-cli db:migrate`
+```
+export NODE_ENV=production
+npx sequelize-cli db:migrate
+```
