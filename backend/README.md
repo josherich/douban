@@ -5,21 +5,16 @@
 run:
 
 ```
-import crawler
-
-site = "https://www.cs.cmu.edu/~odonnell/quantum18/"
-depth = 3
-output_dir = "crawling_test"
-
-crawler.crawl(url=site, depth=depth, output_dir=output_dir, method="normal")
+python crawl_sites.py --page_uri=http://www.abc.com --depth=3 --output_dir=data
 ```
 
 output:
 
 ```
 - data
-  - pdf
-  - txt
+  - pdf/
+  - txt/
+  - [sites]/
 ```
 
 ### 2. extract text
