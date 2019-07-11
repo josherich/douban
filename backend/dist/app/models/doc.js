@@ -11,11 +11,17 @@ var doc = function doc(sequelize, DataTypes) {
     author: DataTypes.ARRAY(DataTypes.STRING),
     uri: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      unique: true
     },
     rating: {
       type: DataTypes.INTEGER,
       defaultValue: 0
+    },
+    uuid: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      unique: true
     },
     publisher: {
       type: DataTypes.STRING,

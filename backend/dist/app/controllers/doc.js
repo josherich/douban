@@ -18,8 +18,19 @@ var jwt = require('jsonwebtoken');
 
 var validator = require('validator');
 
+var fs = require('fs');
+
+var sim_dict = JSON.parse(fs.readFileSync('./data/sim_dict.json', 'utf8'));
+
 module.exports = function (app) {
   app.use('/doc', router);
+};
+
+var query_sim = function query_sim(uuid) {
+  var list = sim_dict["".concat(uuid, ".pdf")] || [];
+  return list.map(function (row) {
+    return row.replace('.pdf', '');
+  });
 };
 
 var verify =
@@ -267,19 +278,24 @@ function () {
   var _ref5 = _asyncToGenerator(
   /*#__PURE__*/
   regeneratorRuntime.mark(function _callee5(req, res, next) {
-    var docs;
+    var offset, limit, docs;
     return regeneratorRuntime.wrap(function _callee5$(_context5) {
       while (1) {
         switch (_context5.prev = _context5.next) {
           case 0:
-            _context5.next = 2;
-            return req.context.models.Doc.findAll();
+            offset = req.query.start || 0;
+            limit = req.query.limit || 10;
+            _context5.next = 4;
+            return req.context.models.Doc.findAll({
+              offset: offset,
+              limit: limit
+            });
 
-          case 2:
+          case 4:
             docs = _context5.sent;
             return _context5.abrupt("return", res.send(docs));
 
-          case 4:
+          case 6:
           case "end":
             return _context5.stop();
         }
@@ -322,62 +338,43 @@ function () {
   return function (_x15, _x16, _x17) {
     return _ref6.apply(this, arguments);
   };
-}()); // Delete doc
+}()); // Get similar docs
 
-router.post('/:id/delete',
+router.get('/:id/more',
 /*#__PURE__*/
 function () {
   var _ref7 = _asyncToGenerator(
   /*#__PURE__*/
   regeneratorRuntime.mark(function _callee7(req, res, next) {
-    var id, doc, user, has;
+    var id, limit, doc, more_docs_uuid, more_docs;
     return regeneratorRuntime.wrap(function _callee7$(_context7) {
       while (1) {
         switch (_context7.prev = _context7.next) {
           case 0:
             id = req.params.id;
-            _context7.next = 3;
+            limit = req.query.limit || 10;
+            _context7.next = 4;
             return req.context.models.Doc.findByPk(req.params.id);
 
-          case 3:
+          case 4:
             doc = _context7.sent;
-            _context7.next = 6;
-            return verify(req, res);
-
-          case 6:
-            user = _context7.sent;
-
-            if (!(user instanceof Error)) {
-              _context7.next = 10;
-              break;
-            }
-
-            res.status(401).send({
-              error: 'Invalid token.' + user.toString()
-            });
-            return _context7.abrupt("return");
-
-          case 10:
-            _context7.next = 12;
-            return user.hasDocs(doc);
-
-          case 12:
-            has = _context7.sent;
-
-            if (!has) {
-              _context7.next = 18;
-              break;
-            }
-
-            doc.destroy();
-            return _context7.abrupt("return", res.status(200).send(doc));
-
-          case 18:
-            res.status(401).send({
-              error: 'Invalid user.'
+            more_docs_uuid = query_sim(doc.uuid) || [];
+            _context7.next = 8;
+            return req.context.models.Doc.findAll({
+              where: {
+                uuid: _defineProperty({}, _sequelize["default"].Op.or, more_docs_uuid)
+              },
+              limit: limit
             });
 
-          case 19:
+          case 8:
+            more_docs = _context7.sent;
+            more_docs.sort(function (doc1, doc2) {
+              return more_docs_uuid.indexOf(doc1.uuid) - more_docs_uuid.indexOf(doc2.uuid);
+            });
+            return _context7.abrupt("return", res.status(200).send(more_docs));
+
+          case 11:
           case "end":
             return _context7.stop();
         }
@@ -387,5 +384,71 @@ function () {
 
   return function (_x18, _x19, _x20) {
     return _ref7.apply(this, arguments);
+  };
+}()); // Delete doc
+
+router.post('/:id/delete',
+/*#__PURE__*/
+function () {
+  var _ref8 = _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee8(req, res, next) {
+    var id, doc, user, has;
+    return regeneratorRuntime.wrap(function _callee8$(_context8) {
+      while (1) {
+        switch (_context8.prev = _context8.next) {
+          case 0:
+            id = req.params.id;
+            _context8.next = 3;
+            return req.context.models.Doc.findByPk(req.params.id);
+
+          case 3:
+            doc = _context8.sent;
+            _context8.next = 6;
+            return verify(req, res);
+
+          case 6:
+            user = _context8.sent;
+
+            if (!(user instanceof Error)) {
+              _context8.next = 10;
+              break;
+            }
+
+            res.status(401).send({
+              error: 'Invalid token.' + user.toString()
+            });
+            return _context8.abrupt("return");
+
+          case 10:
+            _context8.next = 12;
+            return user.hasDocs(doc);
+
+          case 12:
+            has = _context8.sent;
+
+            if (!has) {
+              _context8.next = 18;
+              break;
+            }
+
+            doc.destroy();
+            return _context8.abrupt("return", res.status(200).send(doc));
+
+          case 18:
+            res.status(401).send({
+              error: 'Invalid user.'
+            });
+
+          case 19:
+          case "end":
+            return _context8.stop();
+        }
+      }
+    }, _callee8);
+  }));
+
+  return function (_x21, _x22, _x23) {
+    return _ref8.apply(this, arguments);
   };
 }());
