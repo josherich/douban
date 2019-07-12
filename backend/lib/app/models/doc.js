@@ -8,7 +8,7 @@ const doc = (sequelize, DataTypes) => {
       unique: true
     },
     rating: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.FLOAT,
       defaultValue: 0
     },
     uuid: {

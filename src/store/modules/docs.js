@@ -42,6 +42,19 @@ const actions = {
         })
     })
   },
+  updateDocRating ({ commit }, payload) {
+    return new Promise((resolve, reject) => {
+      request
+        .post(config.api + `/doc/${payload.id}/rating`)
+        .set('Authorization', 'Bearer ' + localStorage.getItem('token'))
+        .send({rating: payload.rating})
+        .then(res => {
+          resolve(res)
+        }, err => {
+          reject(err)
+        })
+    })
+  },
   updatedoc ({ commit }, payload) {
     return new Promise((resolve, reject) => {
       request
@@ -69,14 +82,14 @@ const actions = {
   },
   /**
    * Loading more data
-   * skip: 3 default
-   * count: 3 default
+   * skip: 10 default
+   * count: 10 default
    */
   loadMoreDocs ({commit, state}) {
     if (state.noMore) return
     request
       .get(config.api + '/doc?start=' +
-        state.skip + '&count=3')
+        state.skip + '&count=10')
       // .use(jsonp)
       .end((err, res) => {
         if (!err) {

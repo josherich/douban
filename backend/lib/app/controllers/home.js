@@ -7,6 +7,6 @@ module.exports = function (app) {
 
 router.get('/', function (req, res, next) {
   res.render('index', {
-    title: 'Douban'
+    title: 'paper reads api endpoint'
   });
 });

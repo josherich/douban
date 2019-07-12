@@ -9,6 +9,10 @@ module.exports = function (app) {
 }
 
 // signin user
+//
+//
+//
+//
 router.post('/signin', async (req, res, next) => {
   var email = req.body.email
   var pass = req.body.pass
@@ -43,6 +47,10 @@ router.post('/signin', async (req, res, next) => {
 })
 
 // Create user
+//
+//
+//
+//
 router.post('/', async (req, res, next) => {
   var email = req.body.email
   var pass = req.body.pass
@@ -84,12 +92,21 @@ router.post('/', async (req, res, next) => {
   }
 })
 
+// index
+//
+//
+//
+//
 router.get('/', async (req, res, next) => {
   const users = await req.context.models.User.findAll({attributes: ['username']})
   return res.send(users)
 });
 
 // Get user
+//
+//
+//
+//
 // router.get('/:id', function (req, res, next) {
 //   var id = req.params.id
 //   if (req.get('Authorization') == undefined)

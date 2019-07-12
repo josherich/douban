@@ -21,7 +21,14 @@
         </div>
 
         <div class="detail">
-          <span><rating v-if="docItem.title" :rating="{average: docItem.rating}"></rating></span>
+          <!-- <span><rating v-if="docItem.title" :rating="{average: docItem.rating}"></rating></span> -->
+          <span><star-rating
+            v-bind:star-size="20"
+            v-bind:max-rating="5"
+            v-bind:increment="0.5"
+            v-bind:read-only="rated"
+            @rating-selected="setRating"
+            :rating="docItem.rating"></star-rating></span>
           <ul>
             <li></li>
           </ul>
@@ -65,6 +72,7 @@
       </div>
 
     </template>
+    <img v-bind:src="config.api + '/thumbs/' + docItem.uuid + '.pdf.jpg'" />
     <loading v-show="showLoading"></loading>
     <h1 class="related-title">Related Papers</h1>
     <d-list class="similar-docs" mold="thumbnail" :items="similarDocs"></d-list>
@@ -104,14 +112,18 @@ import DownloadApp from '../components/DownloadApp'
 import Loading from '../components/Loading'
 import Rating from '../components/Rating'
 import DList from '../components/DList'
+import config from '@/config'
+import StarRating from 'vue-star-rating'
 
 export default {
   name: 'detail-view',
-  components: { Banner, Tags, DownloadApp, Loading, Rating, DList },
+  components: { Banner, Tags, DownloadApp, Loading, Rating, DList, StarRating },
   data () {
     return {
       showLoading: true,
-      isDisabled: false
+      isDisabled: false,
+      config: config,
+      rated: false
     }
   },
   filters: {
@@ -145,6 +157,18 @@ export default {
     }
   },
   methods: {
+    setRating: function (rating) {
+      const id = this.$route.params.id
+      this.docItem.rating = rating
+      this.$store.dispatch({
+        type: 'updateDocRating',
+        id: id,
+        rating: rating
+      }).then(res => {
+        this.showLoading = false
+        this.rated = true
+      })
+    },
     beforeSubmit: function () {
       // console.log('Submiting...')
       this.isDisabled = true
