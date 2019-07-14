@@ -4,3 +4,4 @@ public/components
 .sass-cache
 admin-config/
 .env
+config/
