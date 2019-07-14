@@ -15,7 +15,8 @@ var sequelize = new _sequelize["default"](process.env.DATABASE, process.env.DATA
 exports.sequelize = sequelize;
 var models = {
   User: sequelize["import"]('./user'),
-  Doc: sequelize["import"]('./doc')
+  Doc: sequelize["import"]('./doc'),
+  Rating: sequelize["import"]('./rating')
 };
 Object.keys(models).forEach(function (key) {
   if ('associate' in models[key]) {

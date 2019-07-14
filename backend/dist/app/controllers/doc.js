@@ -87,68 +87,43 @@ function () {
   return function verify(_x, _x2) {
     return _ref.apply(this, arguments);
   };
-}();
-/* update todo. */
+}(); // REST
+//
+//
+//
+//
+// index
+//
+//
+//
+//
 
 
-router.put('/:id',
+router.get('/',
 /*#__PURE__*/
 function () {
   var _ref2 = _asyncToGenerator(
   /*#__PURE__*/
   regeneratorRuntime.mark(function _callee2(req, res, next) {
-    var id, doc, user, has, updated;
+    var offset, limit, docs;
     return regeneratorRuntime.wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
-            id = req.params.id;
-            _context2.next = 3;
-            return req.context.models.Doc.findByPk(req.params.id);
+            offset = req.query.start || 0;
+            limit = req.query.limit || 10;
+            _context2.next = 4;
+            return req.context.models.Doc.findAll({
+              offset: offset,
+              limit: limit,
+              order: [['createdAt', 'DESC']]
+            });
 
-          case 3:
-            doc = _context2.sent;
-            _context2.next = 6;
-            return verify(req, res);
+          case 4:
+            docs = _context2.sent;
+            return _context2.abrupt("return", res.send(docs));
 
           case 6:
-            user = _context2.sent;
-
-            if (!(user instanceof Error)) {
-              _context2.next = 10;
-              break;
-            }
-
-            res.status(401).send({
-              error: 'Invalid token.' + user.toString()
-            });
-            return _context2.abrupt("return");
-
-          case 10:
-            _context2.next = 12;
-            return user.hasDocs(doc);
-
-          case 12:
-            has = _context2.sent;
-
-            if (!has) {
-              _context2.next = 20;
-              break;
-            }
-
-            _context2.next = 16;
-            return doc.update(req.body);
-
-          case 16:
-            updated = _context2.sent;
-            return _context2.abrupt("return", res.status(200).send(updated));
-
-          case 20:
-            res.status(401).send({
-              error: 'Invalid user.'
-            });
-
-          case 21:
           case "end":
             return _context2.stop();
         }
@@ -159,66 +134,70 @@ function () {
   return function (_x3, _x4, _x5) {
     return _ref2.apply(this, arguments);
   };
-}()); // Create doc
+}()); // update
+//
+//
+//
+//
 
-router.post('/',
+router.put('/:id',
 /*#__PURE__*/
 function () {
   var _ref3 = _asyncToGenerator(
   /*#__PURE__*/
   regeneratorRuntime.mark(function _callee3(req, res, next) {
-    var title, uri, author, user, Doc;
+    var id, doc, user, has, updated;
     return regeneratorRuntime.wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
           case 0:
-            title = req.body.title;
-            uri = req.body.uri;
-            author = req.body.author; // Verify
+            id = req.params.id;
+            _context3.next = 3;
+            return req.context.models.Doc.findByPk(req.params.id);
 
-            _context3.next = 5;
+          case 3:
+            doc = _context3.sent;
+            _context3.next = 6;
             return verify(req, res);
 
-          case 5:
+          case 6:
             user = _context3.sent;
 
             if (!(user instanceof Error)) {
-              _context3.next = 9;
+              _context3.next = 10;
               break;
             }
 
             res.status(401).send({
-              error: 'Invalid token.' + err
+              error: 'Invalid token.' + user.toString()
             });
             return _context3.abrupt("return");
 
-          case 9:
-            if (!(!validator.isEmpty(title) && validator.isURL(uri) && validator.isLength(title, {
-              min: 2,
-              max: 99
-            }))) {
-              _context3.next = 16;
+          case 10:
+            _context3.next = 12;
+            return user.hasDocs(doc);
+
+          case 12:
+            has = _context3.sent;
+
+            if (!has) {
+              _context3.next = 20;
               break;
             }
 
-            _context3.next = 12;
-            return req.context.models.Doc.create(req.body);
-
-          case 12:
-            Doc = _context3.sent;
-            Doc.setUser(user).then(function () {
-              res.status(200).send(Doc);
-            });
-            _context3.next = 17;
-            break;
+            _context3.next = 16;
+            return doc.update(req.body);
 
           case 16:
-            // Error handle
-            res.status(400).send({
-              error: 'Missing field'
+            updated = _context3.sent;
+            return _context3.abrupt("return", res.status(200).send(updated));
+
+          case 20:
+            res.status(401).send({
+              error: 'Invalid user.'
             });
 
-          case 17:
+          case 21:
           case "end":
             return _context3.stop();
         }
@@ -229,20 +208,99 @@ function () {
   return function (_x6, _x7, _x8) {
     return _ref3.apply(this, arguments);
   };
-}());
-router.get('/search',
+}()); // Create
+//
+//
+//
+// return
+
+router.post('/',
 /*#__PURE__*/
 function () {
   var _ref4 = _asyncToGenerator(
   /*#__PURE__*/
   regeneratorRuntime.mark(function _callee4(req, res, next) {
-    var query, docs;
+    var title, uri, author, user, Doc;
     return regeneratorRuntime.wrap(function _callee4$(_context4) {
       while (1) {
         switch (_context4.prev = _context4.next) {
           case 0:
+            title = req.body.title;
+            uri = req.body.uri;
+            author = req.body.author; // Verify
+
+            _context4.next = 5;
+            return verify(req, res);
+
+          case 5:
+            user = _context4.sent;
+
+            if (!(user instanceof Error)) {
+              _context4.next = 9;
+              break;
+            }
+
+            res.status(401).send({
+              error: 'Invalid token.' + err
+            });
+            return _context4.abrupt("return");
+
+          case 9:
+            if (!(!validator.isEmpty(title) && validator.isURL(uri) && validator.isLength(title, {
+              min: 2,
+              max: 99
+            }))) {
+              _context4.next = 16;
+              break;
+            }
+
+            _context4.next = 12;
+            return req.context.models.Doc.create(req.body);
+
+          case 12:
+            Doc = _context4.sent;
+            Doc.setUser(user).then(function () {
+              res.status(200).send(Doc);
+            });
+            _context4.next = 17;
+            break;
+
+          case 16:
+            // Error handle
+            res.status(400).send({
+              error: 'Missing field'
+            });
+
+          case 17:
+          case "end":
+            return _context4.stop();
+        }
+      }
+    }, _callee4);
+  }));
+
+  return function (_x9, _x10, _x11) {
+    return _ref4.apply(this, arguments);
+  };
+}()); // Search
+//
+//
+//
+// return
+
+router.get('/search',
+/*#__PURE__*/
+function () {
+  var _ref5 = _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee5(req, res, next) {
+    var query, docs;
+    return regeneratorRuntime.wrap(function _callee5$(_context5) {
+      while (1) {
+        switch (_context5.prev = _context5.next) {
+          case 0:
             query = req.query.q;
-            _context4.next = 3;
+            _context5.next = 3;
             return req.context.models.Doc.findAll({
               where: _defineProperty({}, _sequelize["default"].Op.or, [// { 'author': { [Sequelize.Op.iLike]: `%${query}%` } },
               {
@@ -257,45 +315,10 @@ function () {
             });
 
           case 3:
-            docs = _context4.sent;
-            return _context4.abrupt("return", res.status(200).send(docs));
+            docs = _context5.sent;
+            return _context5.abrupt("return", res.status(200).send(docs));
 
           case 5:
-          case "end":
-            return _context4.stop();
-        }
-      }
-    }, _callee4);
-  }));
-
-  return function (_x9, _x10, _x11) {
-    return _ref4.apply(this, arguments);
-  };
-}());
-router.get('/',
-/*#__PURE__*/
-function () {
-  var _ref5 = _asyncToGenerator(
-  /*#__PURE__*/
-  regeneratorRuntime.mark(function _callee5(req, res, next) {
-    var offset, limit, docs;
-    return regeneratorRuntime.wrap(function _callee5$(_context5) {
-      while (1) {
-        switch (_context5.prev = _context5.next) {
-          case 0:
-            offset = req.query.start || 0;
-            limit = req.query.limit || 10;
-            _context5.next = 4;
-            return req.context.models.Doc.findAll({
-              offset: offset,
-              limit: limit
-            });
-
-          case 4:
-            docs = _context5.sent;
-            return _context5.abrupt("return", res.send(docs));
-
-          case 6:
           case "end":
             return _context5.stop();
         }
@@ -306,7 +329,11 @@ function () {
   return function (_x12, _x13, _x14) {
     return _ref5.apply(this, arguments);
   };
-}()); // Get doc
+}()); // Get one
+//
+//
+//
+//
 
 router.get('/:id',
 /*#__PURE__*/
@@ -339,6 +366,10 @@ function () {
     return _ref6.apply(this, arguments);
   };
 }()); // Get similar docs
+//
+//
+//
+//
 
 router.get('/:id/more',
 /*#__PURE__*/
@@ -386,6 +417,10 @@ function () {
     return _ref7.apply(this, arguments);
   };
 }()); // Delete doc
+//
+//
+//
+//
 
 router.post('/:id/delete',
 /*#__PURE__*/
@@ -450,5 +485,118 @@ function () {
 
   return function (_x21, _x22, _x23) {
     return _ref8.apply(this, arguments);
+  };
+}()); // Rate doc
+//
+//
+//
+// return
+
+router.post('/:id/rating',
+/*#__PURE__*/
+function () {
+  var _ref9 = _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee9(req, res, next) {
+    var id, doc, user, prev, Rating, ratings, updated;
+    return regeneratorRuntime.wrap(function _callee9$(_context9) {
+      while (1) {
+        switch (_context9.prev = _context9.next) {
+          case 0:
+            id = req.params.id;
+            _context9.next = 3;
+            return req.context.models.Doc.findByPk(req.params.id);
+
+          case 3:
+            doc = _context9.sent;
+            _context9.next = 6;
+            return verify(req, res);
+
+          case 6:
+            user = _context9.sent;
+
+            if (!(user instanceof Error)) {
+              _context9.next = 10;
+              break;
+            }
+
+            res.status(401).send({
+              error: 'Invalid token.' + user.toString()
+            });
+            return _context9.abrupt("return");
+
+          case 10:
+            _context9.prev = 10;
+            _context9.next = 13;
+            return req.context.models.Rating.findOne({
+              where: {
+                docId: id,
+                userId: user.id
+              }
+            });
+
+          case 13:
+            prev = _context9.sent;
+
+            if (!prev) {
+              _context9.next = 17;
+              break;
+            }
+
+            res.status(401).send({
+              error: 'you have rated this item.'
+            });
+            return _context9.abrupt("return");
+
+          case 17:
+            _context9.next = 19;
+            return req.context.models.Rating.create(req.body);
+
+          case 19:
+            Rating = _context9.sent;
+            Rating.setDoc(doc).then(function () {
+              return Rating.setUser(user);
+            }).then(function () {
+              res.status(200).send(Rating);
+            });
+            _context9.next = 23;
+            return req.context.models.Rating.findAll({
+              where: {
+                docId: id
+              }
+            });
+
+          case 23:
+            ratings = _context9.sent;
+            doc.rating = ratings.reduce(function (ac, cur) {
+              return ac + cur.rating;
+            }, 0.0) / ratings.length;
+            _context9.next = 27;
+            return doc.update({
+              rating: doc.rating
+            });
+
+          case 27:
+            updated = _context9.sent;
+            _context9.next = 33;
+            break;
+
+          case 30:
+            _context9.prev = 30;
+            _context9.t0 = _context9["catch"](10);
+            res.status(401).send({
+              error: 'Invalid rating.'
+            });
+
+          case 33:
+          case "end":
+            return _context9.stop();
+        }
+      }
+    }, _callee9, null, [[10, 30]]);
+  }));
+
+  return function (_x24, _x25, _x26) {
+    return _ref9.apply(this, arguments);
   };
 }());

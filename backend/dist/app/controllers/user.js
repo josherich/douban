@@ -15,6 +15,10 @@ var jwt = require('jsonwebtoken');
 module.exports = function (app) {
   app.use('/user', router);
 }; // signin user
+//
+//
+//
+//
 
 
 router.post('/signin',
@@ -83,6 +87,10 @@ function () {
     return _ref.apply(this, arguments);
   };
 }()); // Create user
+//
+//
+//
+//
 
 router.post('/',
 /*#__PURE__*/
@@ -159,7 +167,12 @@ function () {
   return function (_x4, _x5, _x6) {
     return _ref2.apply(this, arguments);
   };
-}());
+}()); // index
+//
+//
+//
+//
+
 router.get('/',
 /*#__PURE__*/
 function () {
@@ -192,6 +205,10 @@ function () {
     return _ref3.apply(this, arguments);
   };
 }()); // Get user
+//
+//
+//
+//
 // router.get('/:id', function (req, res, next) {
 //   var id = req.params.id
 //   if (req.get('Authorization') == undefined)
