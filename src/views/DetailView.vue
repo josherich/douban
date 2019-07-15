@@ -72,7 +72,7 @@
       </div>
 
     </template>
-    <img v-bind:src="config.api + '/thumbs/' + docItem.uuid + '.pdf.jpg'" />
+    <img class="thumbnail" v-bind:src="config.api + '/thumbs/' + docItem.uuid + '.pdf.jpg'" />
     <loading v-show="showLoading"></loading>
     <h1 class="related-title">Related Papers</h1>
     <d-list class="similar-docs" mold="thumbnail" :items="similarDocs"></d-list>
@@ -232,6 +232,9 @@ h1.related-title {
 }
 .similar-docs {
   margin-top: 1em;
+}
+.thumbnail {
+  width: 100%;
 }
 .info {
   margin: 1rem;
