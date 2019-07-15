@@ -20,6 +20,10 @@ var validator = require('validator');
 
 var fs = require('fs');
 
+var path = require('path');
+
+var parser = require('fast-xml-parser');
+
 var sim_dict = JSON.parse(fs.readFileSync('./data/sim_dict.json', 'utf8'));
 
 module.exports = function (app) {
@@ -486,6 +490,53 @@ function () {
   return function (_x21, _x22, _x23) {
     return _ref8.apply(this, arguments);
   };
+}()); // Get Doc Meta
+//
+//
+//
+// return
+
+router.get('/:uuid/meta',
+/*#__PURE__*/
+function () {
+  var _ref9 = _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee9(req, res, next) {
+    var id, text, jsonObj, authors, date, keywords, meta;
+    return regeneratorRuntime.wrap(function _callee9$(_context9) {
+      while (1) {
+        switch (_context9.prev = _context9.next) {
+          case 0:
+            id = req.params.uuid;
+            text = fs.readFileSync("./public/meta/".concat(id, ".tei.xml"), 'utf8');
+            jsonObj = parser.parse(text);
+            authors = jsonObj['TEI']['teiHeader']['fileDesc']['sourceDesc']['biblStruct']['analytic']['author'];
+            date = jsonObj['TEI']['teiHeader']['fileDesc']['publicationStmt']['date'];
+            keywords = jsonObj['TEI']['teiHeader']['profileDesc']['textClass'];
+            meta = {
+              title: jsonObj['TEI']['teiHeader']['fileDesc']['titleStmt']['title'],
+              authors: authors ? (Array.isArray(authors) ? authors : [authors]).filter(function (x) {
+                return x['persName'];
+              }).map(function (x) {
+                return (x['persName']['forename'] || '') + ' ' + (x['persName']['surname'] || '');
+              }) : [],
+              pubdate: date ? new Date(date) : new Date(),
+              keywords: keywords ? keywords['keywords'] : [],
+              abstracts: jsonObj['TEI']['teiHeader']['profileDesc']['abstract']['p'] || ''
+            };
+            res.status(200).send(meta);
+
+          case 8:
+          case "end":
+            return _context9.stop();
+        }
+      }
+    }, _callee9);
+  }));
+
+  return function (_x24, _x25, _x26) {
+    return _ref9.apply(this, arguments);
+  };
 }()); // Rate doc
 //
 //
@@ -495,39 +546,39 @@ function () {
 router.post('/:id/rating',
 /*#__PURE__*/
 function () {
-  var _ref9 = _asyncToGenerator(
+  var _ref10 = _asyncToGenerator(
   /*#__PURE__*/
-  regeneratorRuntime.mark(function _callee9(req, res, next) {
+  regeneratorRuntime.mark(function _callee10(req, res, next) {
     var id, doc, user, prev, Rating, ratings, updated;
-    return regeneratorRuntime.wrap(function _callee9$(_context9) {
+    return regeneratorRuntime.wrap(function _callee10$(_context10) {
       while (1) {
-        switch (_context9.prev = _context9.next) {
+        switch (_context10.prev = _context10.next) {
           case 0:
             id = req.params.id;
-            _context9.next = 3;
+            _context10.next = 3;
             return req.context.models.Doc.findByPk(req.params.id);
 
           case 3:
-            doc = _context9.sent;
-            _context9.next = 6;
+            doc = _context10.sent;
+            _context10.next = 6;
             return verify(req, res);
 
           case 6:
-            user = _context9.sent;
+            user = _context10.sent;
 
             if (!(user instanceof Error)) {
-              _context9.next = 10;
+              _context10.next = 10;
               break;
             }
 
             res.status(401).send({
               error: 'Invalid token.' + user.toString()
             });
-            return _context9.abrupt("return");
+            return _context10.abrupt("return");
 
           case 10:
-            _context9.prev = 10;
-            _context9.next = 13;
+            _context10.prev = 10;
+            _context10.next = 13;
             return req.context.models.Rating.findOne({
               where: {
                 docId: id,
@@ -536,30 +587,30 @@ function () {
             });
 
           case 13:
-            prev = _context9.sent;
+            prev = _context10.sent;
 
             if (!prev) {
-              _context9.next = 17;
+              _context10.next = 17;
               break;
             }
 
             res.status(401).send({
               error: 'you have rated this item.'
             });
-            return _context9.abrupt("return");
+            return _context10.abrupt("return");
 
           case 17:
-            _context9.next = 19;
+            _context10.next = 19;
             return req.context.models.Rating.create(req.body);
 
           case 19:
-            Rating = _context9.sent;
+            Rating = _context10.sent;
             Rating.setDoc(doc).then(function () {
               return Rating.setUser(user);
             }).then(function () {
               res.status(200).send(Rating);
             });
-            _context9.next = 23;
+            _context10.next = 23;
             return req.context.models.Rating.findAll({
               where: {
                 docId: id
@@ -567,36 +618,36 @@ function () {
             });
 
           case 23:
-            ratings = _context9.sent;
+            ratings = _context10.sent;
             doc.rating = ratings.reduce(function (ac, cur) {
               return ac + cur.rating;
             }, 0.0) / ratings.length;
-            _context9.next = 27;
+            _context10.next = 27;
             return doc.update({
               rating: doc.rating
             });
 
           case 27:
-            updated = _context9.sent;
-            _context9.next = 33;
+            updated = _context10.sent;
+            _context10.next = 33;
             break;
 
           case 30:
-            _context9.prev = 30;
-            _context9.t0 = _context9["catch"](10);
+            _context10.prev = 30;
+            _context10.t0 = _context10["catch"](10);
             res.status(401).send({
               error: 'Invalid rating.'
             });
 
           case 33:
           case "end":
-            return _context9.stop();
+            return _context10.stop();
         }
       }
-    }, _callee9, null, [[10, 30]]);
+    }, _callee10, null, [[10, 30]]);
   }));
 
-  return function (_x24, _x25, _x26) {
-    return _ref9.apply(this, arguments);
+  return function (_x27, _x28, _x29) {
+    return _ref10.apply(this, arguments);
   };
 }());
