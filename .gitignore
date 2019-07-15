@@ -1,4 +1,4 @@
-dist
+/dist
 backend/admin-config
 .env
 backend/.env
