@@ -9,6 +9,7 @@ const state = {
   noMore: false,
   perPage: 10,
   docItem: {},
+  docMeta: {},
   similarDocs: []
 }
 
@@ -25,6 +26,9 @@ const mutations = {
   },
   getSimilarDocs (state, payload) {
     state.similarDocs = payload.res
+  },
+  getDocMeta (state, payload) {
+    state.docMeta = payload.res
   }
 }
 
@@ -128,6 +132,21 @@ const actions = {
           if (!err) {
             commit({
               type: 'getSimilarDocs',
+              res: res.body
+            })
+            resolve(res)
+          }
+        })
+    })
+  },
+  getDocMeta ({commit, state}, payload) {
+    return new Promise((resolve, reject) => {
+      request
+        .get(config.api + `/doc/${payload.uuid}/meta`)
+        .end((err, res) => {
+          if (!err) {
+            commit({
+              type: 'getDocMeta',
               res: res.body
             })
             resolve(res)

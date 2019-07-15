@@ -112,6 +112,125 @@
       </button>
     </div>
   </form>
+
+
+  <form method="put" @submit.prevent="onSubmitFromMeta()">
+    <p v-if="error" class="tip error">{{error}}</p>
+    <div class="form-alias">
+      <label>
+        <strong>title</strong>
+        <input
+          v-model.trim="docMeta.title"
+          type="text"
+          name="title"
+          placeholder="title">
+      </label>
+    </div>
+
+    <div class="form-name">
+      <label>
+        <strong>URL</strong>
+        <input
+          v-model.trim="docItem.uri"
+          type="text"
+          name="uri"
+          placeholder="URL">
+      </label>
+    </div>
+
+    <div class="form-name">
+      <label>
+        <strong>Category</strong>
+        <input
+          v-model.trim="docItem.category"
+          type="text"
+          name="category"
+          placeholder="category">
+      </label>
+    </div>
+
+    <div class="form-name">
+      <label>
+        <strong>Authors</strong>
+        <input
+          v-model.trim="(docMeta.authors||[]).join(',')"
+          type="text"
+          name="author"
+          placeholder="authors">
+      </label>
+    </div>
+
+    <div class="form-name">
+      <label>
+        <strong>Publisher</strong>
+        <input
+          v-model.trim="docItem.publisher"
+          type="text"
+          name="publisher"
+          placeholder="publisher">
+      </label>
+    </div>
+
+    <div class="form-name">
+      <label>
+        <strong>Summary</strong>
+
+        <input
+          v-model.trim="docMeta.abstracts"
+          type="text"
+          name="summary"
+          placeholder="Summary">
+
+      </label>
+    </div>
+
+    <div class="form-name">
+      <label>
+        <strong>Publish Date</strong>
+
+
+        <input
+          v-model.trim="docMeta.pubdate"
+          type="text"
+          name="pubdate"
+          placeholder="Publish Date">
+
+      </label>
+    </div>
+
+    <div class="form-name">
+      <label>
+        <strong>Pages</strong>
+        <input
+          v-model.trim="docItem.pages"
+          type="text"
+          name="pages"
+          placeholder="Pages">
+      </label>
+    </div>
+
+    <div class="form-name">
+      <label>
+        <strong>Price</strong>
+        <input
+          v-model.trim="docItem.price"
+          type="text"
+          name="price"
+          placeholder="Price">
+      </label>
+    </div>
+
+    <div class="form-submit">
+      <button
+        class="submit"
+        type="submit"
+        :disabled="isDisabled"
+        :class="{disabled: isDisabled}">
+        Save
+      </button>
+    </div>
+  </form>
+
   </div>
 </template>
 
@@ -130,7 +249,8 @@ export default {
   computed: {
     // Getting Vuex State from store/modules/user
     ...mapState({
-      docItem: state => state.docs.docItem
+      docItem: state => state.docs.docItem,
+      docMeta: state => state.docs.docMeta
     })
   },
   methods: {
@@ -162,6 +282,26 @@ export default {
         // Error handle
         this.onError(err)
       })
+    },
+    onSubmitFromMeta: function () {
+      this.docItem.title = this.docMeta.title
+      this.docItem.author = this.docMeta.authors
+      this.docItem.pubdate = this.docMeta.pubdate
+      this.docItem.summary = this.docMeta.abstracts
+      // Disabled submit button
+      this.beforeSubmit()
+      // Login...
+      this.$store.dispatch({
+        type: 'updatedoc',
+        id: this.$route.params.id,
+        item: this.docItem
+      }).then(res => {
+        // Success handle
+        this.onSuccess(res)
+      }, err => {
+        // Error handle
+        this.onError(err)
+      })
     }
   },
   created () {
@@ -173,8 +313,14 @@ export default {
       type: 'getSingleDoc',
       id: id
     }).then(res => {
-      // Success handle
       this.showLoading = false
+      // Dispatching getSingleEvent
+      this.$store.dispatch({
+        type: 'getDocMeta',
+        uuid: this.docItem.uuid
+      }).then(res => {
+        this.showLoading = false
+      })
     })
   }
 }

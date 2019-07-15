@@ -1,11 +1,13 @@
-var express = require('express')
-var router = express.Router()
-var jwt = require('jsonwebtoken')
-var validator = require('validator')
-var fs = require('fs')
+const express = require('express')
+const router = express.Router()
+const jwt = require('jsonwebtoken')
+const validator = require('validator')
+const fs = require('fs')
+const path = require('path')
+const parser = require('fast-xml-parser')
 
 import Sequelize from 'sequelize'
-var sim_dict = JSON.parse(fs.readFileSync('./data/sim_dict.json', 'utf8'))
+const sim_dict = JSON.parse(fs.readFileSync('./data/sim_dict.json', 'utf8'))
 
 module.exports = function (app) {
   app.use('/doc', router)
@@ -215,6 +217,32 @@ router.post('/:id/delete', async (req, res, next) => {
     })
   }
 
+})
+
+// Get Doc Meta
+//
+//
+//
+// return
+router.get('/:uuid/meta', async (req, res, next) => {
+  const id = req.params.uuid
+  const text = fs.readFileSync(`./public/meta/${id}.tei.xml`, 'utf8')
+  const jsonObj = parser.parse(text)
+  const authors = jsonObj['TEI']['teiHeader']['fileDesc']['sourceDesc']['biblStruct']['analytic']['author']
+  const date = jsonObj['TEI']['teiHeader']['fileDesc']['publicationStmt']['date']
+  const keywords = jsonObj['TEI']['teiHeader']['profileDesc']['textClass']
+
+  const meta = {
+    title: jsonObj['TEI']['teiHeader']['fileDesc']['titleStmt']['title'],
+    authors: authors ? (Array.isArray(authors) ? authors : [authors])
+      .filter(x => x['persName'])
+      .map(x => (x['persName']['forename'] || '') + ' ' + (x['persName']['surname'] || '')) : [],
+    pubdate: date ? new Date(date) : new Date(),
+    keywords: keywords ? keywords['keywords'] : [],
+    abstracts: jsonObj['TEI']['teiHeader']['profileDesc']['abstract']['p'] || ''
+  }
+
+  res.status(200).send(meta)
 })
 
 // Rate doc
