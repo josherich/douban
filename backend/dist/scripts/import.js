@@ -14,12 +14,15 @@ var fs = require('fs');
 
 var path = require('path');
 
-if (process.argv.length < 3) {
-  console.log('run node import.js [data_path]');
+var parser = require('fast-xml-parser');
+
+if (process.argv.length < 4) {
+  console.log('run node import.js [data_path] [public_path]');
   process.exit(1);
 }
 
 var data_path = process.argv[2];
+var public_path = process.argv[3];
 var list_csv = fs.readFileSync("".concat(data_path, "/list.csv"), 'utf8');
 var file_list = list_csv.split('\n').slice(1).map(function (e) {
   return e.split(',');
@@ -42,14 +45,40 @@ var txt_folder = fs.readdirSync("".concat(data_path, ".txt")).forEach(function (
   if (file_dict[uuid]) file_dict[uuid]['title'] = text.split('\n')[0];else {
     console.log('txt file id not found in csv', uuid);
   }
+}); // copy thumb folder to public
+
+var thumb_folder = fs.readdirSync("".concat(data_path, ".thumb")).forEach(function (file) {
+  fs.copyFileSync(path.join("".concat(data_path, ".thumb"), file), path.join(public_path, 'thumbs', file));
+}); // copy meta folder to public
+
+var meta_folder = fs.readdirSync("".concat(data_path, ".meta")).forEach(function (file) {
+  fs.copyFileSync(path.join("".concat(data_path, ".meta"), file), path.join(public_path, 'meta', file));
 });
 
 var createFromFile = function createFromFile(obj) {
+  var text = fs.readFileSync(path.join("".concat(data_path, ".meta"), "".concat(obj['uuid'], ".tei.xml")), 'utf8');
+  var jsonObj = parser.parse(text);
+  var authors = jsonObj['TEI']['teiHeader']['fileDesc']['sourceDesc']['biblStruct']['analytic']['author'];
+  var date = new Date(jsonObj['TEI']['teiHeader']['fileDesc']['publicationStmt']['date']);
+  var keywords = jsonObj['TEI']['teiHeader']['profileDesc']['textClass'];
+  var meta = {
+    title: jsonObj['TEI']['teiHeader']['fileDesc']['titleStmt']['title'],
+    authors: authors ? (Array.isArray(authors) ? authors : [authors]).filter(function (x) {
+      return x['persName'];
+    }).map(function (x) {
+      return (x['persName']['forename'] || '') + ' ' + (x['persName']['surname'] || '');
+    }) : [],
+    pubdate: date.toString() === 'Invalid Date' ? new Date() : date,
+    keywords: keywords ? keywords['keywords'] : [],
+    abstracts: jsonObj['TEI']['teiHeader']['profileDesc']['abstract']['p'] || ''
+  };
   return {
-    title: obj['title'],
+    title: meta['title'],
+    author: meta['authors'],
+    pubdate: meta['pubdate'],
     uri: obj['uri'],
     uuid: obj['uuid'],
-    summary: obj['page']
+    summary: meta['abstracts']
   };
 };
 
