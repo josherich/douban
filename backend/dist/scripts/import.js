@@ -56,30 +56,39 @@ var meta_folder = fs.readdirSync("".concat(data_path, ".meta")).forEach(function
 });
 
 var createFromFile = function createFromFile(obj) {
-  var text = fs.readFileSync(path.join("".concat(data_path, ".meta"), "".concat(obj['uuid'], ".tei.xml")), 'utf8');
-  var jsonObj = parser.parse(text);
-  var authors = jsonObj['TEI']['teiHeader']['fileDesc']['sourceDesc']['biblStruct']['analytic']['author'];
-  var date = new Date(jsonObj['TEI']['teiHeader']['fileDesc']['publicationStmt']['date']);
-  var keywords = jsonObj['TEI']['teiHeader']['profileDesc']['textClass'];
-  var meta = {
-    title: jsonObj['TEI']['teiHeader']['fileDesc']['titleStmt']['title'],
-    authors: authors ? (Array.isArray(authors) ? authors : [authors]).filter(function (x) {
-      return x['persName'];
-    }).map(function (x) {
-      return (x['persName']['forename'] || '') + ' ' + (x['persName']['surname'] || '');
-    }) : [],
-    pubdate: date.toString() === 'Invalid Date' ? new Date() : date,
-    keywords: keywords ? keywords['keywords'] : [],
-    abstracts: jsonObj['TEI']['teiHeader']['profileDesc']['abstract']['p'] || ''
-  };
-  return {
-    title: meta['title'],
-    author: meta['authors'],
-    pubdate: meta['pubdate'],
-    uri: obj['uri'],
-    uuid: obj['uuid'],
-    summary: meta['abstracts']
-  };
+  try {
+    var text = fs.readFileSync(path.join("".concat(data_path, ".meta"), "".concat(obj['uuid'], ".tei.xml")), 'utf8');
+    var jsonObj = parser.parse(text);
+    var authors = jsonObj['TEI']['teiHeader']['fileDesc']['sourceDesc']['biblStruct']['analytic']['author'];
+    var date = new Date(jsonObj['TEI']['teiHeader']['fileDesc']['publicationStmt']['date']);
+    var keywords = jsonObj['TEI']['teiHeader']['profileDesc']['textClass'];
+    var meta = {
+      title: jsonObj['TEI']['teiHeader']['fileDesc']['titleStmt']['title'],
+      authors: authors ? (Array.isArray(authors) ? authors : [authors]).filter(function (x) {
+        return x['persName'];
+      }).map(function (x) {
+        return (x['persName']['forename'] || '') + ' ' + (x['persName']['surname'] || '');
+      }) : [],
+      pubdate: date.toString() === 'Invalid Date' ? new Date() : date,
+      keywords: keywords ? keywords['keywords'] : [],
+      abstracts: jsonObj['TEI']['teiHeader']['profileDesc']['abstract']['p'] || ''
+    };
+    return {
+      title: meta['title'],
+      author: meta['authors'],
+      pubdate: meta['pubdate'],
+      uri: obj['uri'],
+      uuid: obj['uuid'],
+      summary: meta['abstracts']
+    };
+  } catch (e) {
+    return {
+      title: obj['title'],
+      uri: obj['uri'],
+      uuid: obj['uuid'],
+      summary: obj['page']
+    };
+  }
 };
 
 var docs_to_write = Object.keys(file_dict).map(function (id) {
