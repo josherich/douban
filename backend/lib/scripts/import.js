@@ -59,29 +59,38 @@ const meta_folder = fs.readdirSync(`${data_path}.meta`)
 })
 
 const createFromFile = (obj) => {
-  const text = fs.readFileSync(path.join(`${data_path}.meta`, `${obj['uuid']}.tei.xml`), 'utf8')
-  const jsonObj = parser.parse(text)
-  const authors = jsonObj['TEI']['teiHeader']['fileDesc']['sourceDesc']['biblStruct']['analytic']['author']
-  const date = new Date(jsonObj['TEI']['teiHeader']['fileDesc']['publicationStmt']['date'])
-  const keywords = jsonObj['TEI']['teiHeader']['profileDesc']['textClass']
+  try {
+    const text = fs.readFileSync(path.join(`${data_path}.meta`, `${obj['uuid']}.tei.xml`), 'utf8')
+    const jsonObj = parser.parse(text)
+    const authors = jsonObj['TEI']['teiHeader']['fileDesc']['sourceDesc']['biblStruct']['analytic']['author']
+    const date = new Date(jsonObj['TEI']['teiHeader']['fileDesc']['publicationStmt']['date'])
+    const keywords = jsonObj['TEI']['teiHeader']['profileDesc']['textClass']
 
-  const meta = {
-    title: jsonObj['TEI']['teiHeader']['fileDesc']['titleStmt']['title'],
-    authors: authors ? (Array.isArray(authors) ? authors : [authors])
-      .filter(x => x['persName'])
-      .map(x => (x['persName']['forename'] || '') + ' ' + (x['persName']['surname'] || '')) : [],
-    pubdate: date.toString() === 'Invalid Date' ? new Date() : date,
-    keywords: keywords ? keywords['keywords'] : [],
-    abstracts: jsonObj['TEI']['teiHeader']['profileDesc']['abstract']['p'] || ''
-  }
+    const meta = {
+      title: jsonObj['TEI']['teiHeader']['fileDesc']['titleStmt']['title'],
+      authors: authors ? (Array.isArray(authors) ? authors : [authors])
+        .filter(x => x['persName'])
+        .map(x => (x['persName']['forename'] || '') + ' ' + (x['persName']['surname'] || '')) : [],
+      pubdate: date.toString() === 'Invalid Date' ? new Date() : date,
+      keywords: keywords ? keywords['keywords'] : [],
+      abstracts: jsonObj['TEI']['teiHeader']['profileDesc']['abstract']['p'] || ''
+    }
 
-  return {
-    title: meta['title'],
-    author: meta['authors'],
-    pubdate: meta['pubdate'],
-    uri: obj['uri'],
-    uuid: obj['uuid'],
-    summary: meta['abstracts']
+    return {
+      title: meta['title'],
+      author: meta['authors'],
+      pubdate: meta['pubdate'],
+      uri: obj['uri'],
+      uuid: obj['uuid'],
+      summary: meta['abstracts']
+    }
+  } catch (e) {
+    return {
+      title: obj['title'],
+      uri: obj['uri'],
+      uuid: obj['uuid'],
+      summary: obj['page']
+    }
   }
 }
 
