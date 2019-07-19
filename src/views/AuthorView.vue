@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState } from 'vuex'
 
 import InfiniteLoading from 'vue-infinite-loading'
 import SubNav from '../components/SubNav'
@@ -35,15 +35,18 @@ export default {
   },
   watch: {
     '$route' (to, from) {
+      this.queryDocs()
+    }
+  },
+  methods: {
+    queryDocs () {
       const name = this.$route.params.name
       this.name = name
       this.$store.dispatch({
         type: 'queryDoc',
         queryStr: name
       })
-    }
-  },
-  methods: {
+    },
     // Using vue-infinite-loading
     onInfinite ($state) {
       if (this.noMore) {
@@ -51,22 +54,13 @@ export default {
         return
       }
       setTimeout(() => {
-        this.loadMoreDocs()
+        this.queryDocs()
         $state.loaded()
       }, 1000)
-    },
-    // Dispatching Actions
-    ...mapActions([
-      'loadMoreDocs'
-    ])
+    }
   },
   created () {
-    const name = this.$route.params.name
-    this.name = name
-    this.$store.dispatch({
-      type: 'queryDoc',
-      queryStr: name
-    })
+    this.queryDocs()
   }
 }
 </script>

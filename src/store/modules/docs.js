@@ -26,7 +26,7 @@ const mutations = {
       state.noMore = true
     }
   },
-  queryMoreDocs (state, payload) {
+  queryDoc (state, payload) {
     state.skipQuery += 10
     state.docQueryResult = state.docQueryResult.concat(payload.res)
     if (payload.res.length < state.perPage) {
@@ -41,9 +41,6 @@ const mutations = {
   },
   getDocMeta (state, payload) {
     state.docMeta = payload.res
-  },
-  queryDoc (state, payload) {
-    state.docQueryResult = payload.res
   }
 }
 
@@ -179,7 +176,7 @@ const actions = {
   queryDoc ({ commit, state }, payload) {
     return new Promise((resolve, reject) => {
       request
-        .get(config.api + `/doc/search?q=${payload.queryStr}`)
+        .get(config.api + `/doc/search?q=${payload.queryStr}&start=${state.skipQuery}&count=10`)
         .end((err, res) => {
           if (!err) {
             commit({
@@ -190,26 +187,6 @@ const actions = {
           }
         })
     })
-  },
-  /**
-   * Query more docs
-   * skip: 10 default
-   * count: 10 default
-   */
-  queryMoreDocs ({commit, state}) {
-    if (state.noMoreQuery) return
-    request
-      .get(config.api + '/doc?start=' +
-        state.skipQuery + '&count=10')
-      // .use(jsonp)
-      .end((err, res) => {
-        if (!err) {
-          commit({
-            type: 'queryMoreDocs',
-            res: res.body
-          })
-        }
-      })
   }
 }
 
