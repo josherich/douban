@@ -47,6 +47,20 @@ a {
   text-decoration: none;
 }
 
+.block-button {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px 0;
+  text-align: center;
+  background: rgba(0,0,0,0);
+  border: 1px solid #eee;
+  border-radius: 3px;
+  font-size: 1.4em;
+  color: #4a4a4a;
+  cursor: pointer;
+}
+
 // Common style
 .header-bar {
   position: fixed;

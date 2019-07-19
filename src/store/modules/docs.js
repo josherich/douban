@@ -3,14 +3,19 @@ import request from 'superagent'
 import config from '@/config'
 
 const state = {
-  docs: [],
   temp: [],
   skip: 0,
   noMore: false,
+
+  skipQuery: 0,
+  noMoreQuery: false,
   perPage: 10,
+
+  docs: [],
   docItem: {},
   docMeta: {},
-  similarDocs: []
+  similarDocs: [],
+  docQueryResult: []
 }
 
 const mutations = {
@@ -21,6 +26,13 @@ const mutations = {
       state.noMore = true
     }
   },
+  queryMoreDocs (state, payload) {
+    state.skipQuery += 10
+    state.docQueryResult = state.docQueryResult.concat(payload.res)
+    if (payload.res.length < state.perPage) {
+      state.noMoreQuery = true
+    }
+  },
   getSingleDoc (state, payload) {
     state.docItem = payload.res
   },
@@ -29,6 +41,9 @@ const mutations = {
   },
   getDocMeta (state, payload) {
     state.docMeta = payload.res
+  },
+  queryDoc (state, payload) {
+    state.docQueryResult = payload.res
   }
 }
 
@@ -153,6 +168,48 @@ const actions = {
           }
         })
     })
+  },
+  /**
+   * Query doc
+   * @param  {[type]} options.commit [description]
+   * @param  {[type]} options.state  [description]
+   * @param  {[type]} payload        [{queryStr}]
+   * @return {Promise}                [description]
+   */
+  queryDoc ({ commit, state }, payload) {
+    return new Promise((resolve, reject) => {
+      request
+        .get(config.api + `/doc/search?q=${payload.queryStr}`)
+        .end((err, res) => {
+          if (!err) {
+            commit({
+              type: 'queryDoc',
+              res: res.body
+            })
+            resolve(res)
+          }
+        })
+    })
+  },
+  /**
+   * Query more docs
+   * skip: 10 default
+   * count: 10 default
+   */
+  queryMoreDocs ({commit, state}) {
+    if (state.noMoreQuery) return
+    request
+      .get(config.api + '/doc?start=' +
+        state.skipQuery + '&count=10')
+      // .use(jsonp)
+      .end((err, res) => {
+        if (!err) {
+          commit({
+            type: 'queryMoreDocs',
+            res: res.body
+          })
+        }
+      })
   }
 }
 

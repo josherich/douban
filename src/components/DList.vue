@@ -2,18 +2,24 @@
   <div class="d-list">
     <template v-if="mold === 'thumbnail'" v-for="item in items">
       <div class="row">
-        <router-link
-          class="thumbnail"
-          :to="{name: 'DetailView', params: { id: item.id }}">
-          <div class="content">
-            <!-- <img :src="item.image" alt="cover"> -->
-            <h3>{{item.title}}</h3>
+
+        <div class="content">
+          <!-- <img :src="item.image" alt="cover"> -->
+          <router-link
+            class="thumbnail"
+            :to="{name: 'DetailView', params: { id: item.id }}"><h3>{{item.title}}</h3></router-link>
+
+          <div class="thumbnail">
             <template v-for="author in item.author">
-              <span class="name">{{author}}</span>
+              <router-link class="" :to="{name: 'AuthorView', params: { name: author }}"><span class="name">{{author}}</span></router-link>
             </template>
-            <p>{{item.summary | subStr}}</p>
           </div>
-        </router-link>
+
+          <router-link
+            class="thumbnail"
+            :to="{name: 'DetailView', params: { id: item.id }}"><p>{{item.summary | subStr}}</p></router-link>
+        </div>
+
         <div class="download">
           <a :href="item.uri">Download</a>
         </div>
@@ -70,16 +76,12 @@ export default {
   .thumbnail {
     position: relative;
     display: block;
-    padding: 1.5rem 1.8rem 1.5rem 0;
+    padding: 0 1.8rem 1.5rem 0;
     margin-left: 1.8rem;
 
     .content {
       overflow: hidden;
       margin-bottom: 1rem;
-    }
-    .name {
-      margin-right: 1em;
-      font-size: 1.4rem;
     }
     h3 {
       margin-top: 0;
@@ -90,7 +92,10 @@ export default {
       font-weight: 500;
       color: #494949;
     }
-
+    .name {
+      margin-right: 1em;
+      font-size: 1.4rem;
+    }
     p {
       line-height: 1.5;
       text-align: justify;
@@ -116,16 +121,6 @@ export default {
       bottom: 2.5rem;
       right: 1.8rem;
     }
-  }
-
-  .thumbnail ~ .thumbnail::before {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 0.1rem;
-    content: '';
-    background: #e3e3e3;
   }
 
   .basic {

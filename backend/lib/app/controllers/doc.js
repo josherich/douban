@@ -128,16 +128,22 @@ router.post('/', async (req, res, next) => {
 // return
 router.get('/search', async (req, res, next) => {
   const query = req.query.q
+  const offset = req.query.start || 0
+  const limit = req.query.limit || 10
   const docs = await req.context.models.Doc.findAll({
       where: {
         [Sequelize.Op.or]: [
           // { 'author': { [Sequelize.Op.iLike]: `%${query}%` } },
+          // { 'author': { [Sequelize.Op.contains]: [{ [Sequelize.Op.iLike]: `%${query}%` }] } },
+          // { 'author': [ query ] },
+          { 'author': { [Sequelize.Op.contains]: [query] } },
           { 'title': { [Sequelize.Op.iLike]: `%${query}%` } },
           { 'summary': { [Sequelize.Op.iLike]: `%${query}%` } },
-          { 'title': { [Sequelize.Op.iLike]: `%${query}%` } },
           { 'publisher': { [Sequelize.Op.iLike]: `%${query}%` } }
         ]
-      }
+      },
+      offset: offset,
+      limit: limit
   })
   return res.status(200).send(docs)
 })
@@ -153,7 +159,13 @@ router.get('/:id', async (req, res, next) => {
   const doc = await req.context.models.Doc.findByPk(
     req.params.id,
   )
-  return res.status(200).send(doc)
+  if (doc == null) {
+    return res.status(403).send({
+      error: 'doc not found.'
+    })
+  } else {
+    return res.status(200).send(doc)
+  }
 })
 
 // Get similar docs

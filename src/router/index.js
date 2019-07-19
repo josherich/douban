@@ -9,6 +9,7 @@ import LoginView from '../views/LoginView'
 import RegisterView from '../views/RegisterView'
 import NewDocView from '../views/NewDocView'
 import EditView from '../views/EditDocView'
+import AuthorView from '../views/AuthorView'
 
 Vue.use(Router)
 
@@ -40,6 +41,11 @@ export default new Router({
           path: 'edit/:id',
           name: 'EditView',
           component: EditView
+        },
+        {
+          path: '/author/:name',
+          name: 'AuthorView',
+          component: AuthorView
         }
       ]
     },

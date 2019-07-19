@@ -1,6 +1,6 @@
 <template>
-  <div class="home-view has-header">
-    <sub-nav mold="quickNav"></sub-nav>
+  <div class="author-view has-header">
+    <h1>{{name}}</h1>
     <d-list mold="thumbnail" :items="docs"></d-list>
     <infinite-loading :on-infinite="onInfinite" ref="infiniteLoading">
       <loading slot="spinner"></loading>
@@ -19,17 +19,29 @@ import DList from '../components/DList'
 import Loading from '../components/Loading'
 
 export default {
-  name: 'home-view',
+  name: 'author-view',
   components: { SubNav, List, DList, InfiniteLoading, Loading },
   data () {
-    return {}
+    return {
+      name: ''
+    }
   },
   computed: {
     // Getting Vuex State from store/modules/activities
     ...mapState({
-      docs: state => state.docs.docs,
+      docs: state => state.docs.docQueryResult,
       noMore: state => state.docs.noMore
     })
+  },
+  watch: {
+    '$route' (to, from) {
+      const name = this.$route.params.name
+      this.name = name
+      this.$store.dispatch({
+        type: 'queryDoc',
+        queryStr: name
+      })
+    }
   },
   methods: {
     // Using vue-infinite-loading
@@ -40,7 +52,6 @@ export default {
       }
       setTimeout(() => {
         this.loadMoreDocs()
-        // this.$refs.infiniteLoading.$emit('$InfiniteLoading:loaded')
         $state.loaded()
       }, 1000)
     },
@@ -48,13 +59,25 @@ export default {
     ...mapActions([
       'loadMoreDocs'
     ])
+  },
+  created () {
+    const name = this.$route.params.name
+    this.name = name
+    this.$store.dispatch({
+      type: 'queryDoc',
+      queryStr: name
+    })
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.sub-nav {
-  margin: 0 1.8rem;
-  padding-top: 0.2rem;
+h1 {
+  margin-left: 1.8rem;
+  margin-bottom: 5rem;
+}
+
+.author-view {
+  margin-top: 12em;
 }
 </style>

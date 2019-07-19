@@ -32,7 +32,7 @@ export default {
   },
   computed: {
     ...mapState({
-      queryRes_doc: state => state.search.queryRes_doc
+      queryRes_doc: state => state.docs.docQueryResult
     })
   },
   methods: {
@@ -40,7 +40,7 @@ export default {
       if (this.queryStr) {
         // Dispatching query
         this.$store.dispatch({
-          type: 'query',
+          type: 'queryDoc',
           queryStr: this.queryStr
         })
       }

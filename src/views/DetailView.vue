@@ -14,7 +14,9 @@
           <ul>
             <li>
             <template v-for="author in docItem.author">
-              <span class="badge">{{author}}</span>
+              <router-link class="" :to="{name: 'AuthorView', params: { name: author }}">
+                <span class="badge">{{author}}</span>
+              </router-link>
             </template>
             </li>
           </ul>
@@ -34,7 +36,7 @@
           </ul>
         </div>
 
-        <div class="detail">
+        <div class="detail download">
           <span><a :href="docItem.uri">Download</a></span>
           <ul>
             <li></li>
@@ -48,7 +50,7 @@
           </ul>
         </div>
 
-        <div class="detail">
+        <div class="detail summary">
           <span>Summary:&nbsp;&nbsp;</span>
           <ul>
             <li>{{docItem.summary}}</li>
@@ -72,7 +74,7 @@
       </div>
 
     </template>
-    <img class="thumbnail" v-bind:src="config.api + '/thumbs/' + docItem.uuid + '.pdf.jpg'" />
+    <img v-if="docItem.uuid" class="thumbnail" v-bind:src="config.api + '/thumbs/' + docItem.uuid + '.pdf.jpg'" />
     <loading v-show="showLoading"></loading>
     <h1 class="related-title">Related Papers</h1>
     <d-list class="similar-docs" mold="thumbnail" :items="similarDocs"></d-list>
@@ -80,7 +82,7 @@
     <form method="post" @submit.prevent="onSubmit()">
       <div class="form-submit">
         <button
-          class="submit"
+          class="submit block-button"
           type="submit"
           :disabled="isDisabled"
           :class="{disabled: isDisabled}">
@@ -93,7 +95,7 @@
       class="thumbnail"
       :to="{name: 'EditView', params: { id: docItem.id }}">
       <button
-        class="submit"
+        class="submit block-button"
         type="submit"
         :disabled="isDisabled"
         :class="{disabled: isDisabled}">
@@ -271,6 +273,13 @@ h1.related-title {
   }
 }
 
+.detail.summary li {
+  line-height: 1.4em;
+  font-size: 1.1em;
+}
+.detail.download {
+
+}
 .detail {
   margin-left: 3.3rem;
   margin-bottom: 1rem;
