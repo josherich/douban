@@ -298,31 +298,37 @@ function () {
   var _ref5 = _asyncToGenerator(
   /*#__PURE__*/
   regeneratorRuntime.mark(function _callee5(req, res, next) {
-    var query, docs;
+    var query, offset, limit, docs;
     return regeneratorRuntime.wrap(function _callee5$(_context5) {
       while (1) {
         switch (_context5.prev = _context5.next) {
           case 0:
             query = req.query.q;
-            _context5.next = 3;
+            offset = req.query.start || 0;
+            limit = req.query.limit || 10;
+            _context5.next = 5;
             return req.context.models.Doc.findAll({
               where: _defineProperty({}, _sequelize["default"].Op.or, [// { 'author': { [Sequelize.Op.iLike]: `%${query}%` } },
+              // { 'author': { [Sequelize.Op.contains]: [{ [Sequelize.Op.iLike]: `%${query}%` }] } },
+              // { 'author': [ query ] },
               {
+                'author': _defineProperty({}, _sequelize["default"].Op.contains, [query])
+              }, {
                 'title': _defineProperty({}, _sequelize["default"].Op.iLike, "%".concat(query, "%"))
               }, {
                 'summary': _defineProperty({}, _sequelize["default"].Op.iLike, "%".concat(query, "%"))
               }, {
-                'title': _defineProperty({}, _sequelize["default"].Op.iLike, "%".concat(query, "%"))
-              }, {
                 'publisher': _defineProperty({}, _sequelize["default"].Op.iLike, "%".concat(query, "%"))
-              }])
+              }]),
+              offset: offset,
+              limit: limit
             });
 
-          case 3:
+          case 5:
             docs = _context5.sent;
             return _context5.abrupt("return", res.status(200).send(docs));
 
-          case 5:
+          case 7:
           case "end":
             return _context5.stop();
         }
@@ -356,9 +362,20 @@ function () {
 
           case 3:
             doc = _context6.sent;
+
+            if (!(doc == null)) {
+              _context6.next = 8;
+              break;
+            }
+
+            return _context6.abrupt("return", res.status(403).send({
+              error: 'doc not found.'
+            }));
+
+          case 8:
             return _context6.abrupt("return", res.status(200).send(doc));
 
-          case 5:
+          case 9:
           case "end":
             return _context6.stop();
         }

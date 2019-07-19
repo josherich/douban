@@ -83,7 +83,7 @@ var createFromFile = function createFromFile(obj) {
     };
   } catch (e) {
     return {
-      title: obj['title'],
+      title: obj['filename'].split('.')[0],
       uri: obj['uri'],
       uuid: obj['uuid'],
       summary: obj['page']
