@@ -50,7 +50,13 @@ output:
   - list.csv
 ```
 
-### 4. import
+### 4. extract meta
+
+```
+java -Xmx1G -jar grobid-core/build/libs/grobid-core-0.5.5-onejar.jar -gH grobid-home -dIn ../paper-reads-pdf/data/cims.nyu.edu -dOut ../paper-reads-pdf/data/cims.nyu.edu.meta/ -r -exe processHeader
+```
+
+### 5. import
 ```
 npx babel-node lib/scripts/import.js ../../paper-reads-pipeline/data
 ```
