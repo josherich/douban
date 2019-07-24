@@ -9,7 +9,7 @@
             class="thumbnail"
             :to="{name: 'DetailView', params: { id: item.id }}"><h3>{{item.title}}</h3></router-link>
 
-          <div v-if="item.author.length > 0" class="thumbnail">
+          <div v-if="item.author && item.author.length > 0" class="thumbnail">
             <template v-for="author in item.author">
               <router-link class="" :to="{name: 'AuthorView', params: { name: author }}"><span class="name">{{author}}</span></router-link>
             </template>
