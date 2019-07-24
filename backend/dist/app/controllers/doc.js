@@ -339,6 +339,80 @@ function () {
   return function (_x12, _x13, _x14) {
     return _ref5.apply(this, arguments);
   };
+}()); // get likes by user
+//
+//
+//
+// return
+
+router.get('/likes',
+/*#__PURE__*/
+function () {
+  var _ref6 = _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee6(req, res, next) {
+    var offset, limit, user, likes;
+    return regeneratorRuntime.wrap(function _callee6$(_context6) {
+      while (1) {
+        switch (_context6.prev = _context6.next) {
+          case 0:
+            offset = req.query.start || 0;
+            limit = req.query.limit || 10; // Verify
+
+            _context6.next = 4;
+            return verify(req, res);
+
+          case 4:
+            user = _context6.sent;
+
+            if (!(user instanceof Error)) {
+              _context6.next = 8;
+              break;
+            }
+
+            res.status(401).send({
+              error: 'Invalid token.' + user.toString()
+            });
+            return _context6.abrupt("return");
+
+          case 8:
+            _context6.prev = 8;
+            _context6.next = 11;
+            return req.context.models.Like.findAll({
+              where: {
+                userId: user.id
+              },
+              include: [{
+                model: req.context.models.Doc
+              }],
+              offset: offset,
+              limit: limit
+            });
+
+          case 11:
+            likes = _context6.sent;
+            res.status(200).send(likes);
+            _context6.next = 18;
+            break;
+
+          case 15:
+            _context6.prev = 15;
+            _context6.t0 = _context6["catch"](8);
+            res.status(401).send({
+              error: 'no likes found.'
+            });
+
+          case 18:
+          case "end":
+            return _context6.stop();
+        }
+      }
+    }, _callee6, null, [[8, 15]]);
+  }));
+
+  return function (_x15, _x16, _x17) {
+    return _ref6.apply(this, arguments);
+  };
 }()); // Get one
 //
 //
@@ -348,85 +422,61 @@ function () {
 router.get('/:id',
 /*#__PURE__*/
 function () {
-  var _ref6 = _asyncToGenerator(
-  /*#__PURE__*/
-  regeneratorRuntime.mark(function _callee6(req, res, next) {
-    var id, doc;
-    return regeneratorRuntime.wrap(function _callee6$(_context6) {
-      while (1) {
-        switch (_context6.prev = _context6.next) {
-          case 0:
-            id = req.params.id;
-            _context6.next = 3;
-            return req.context.models.Doc.findByPk(req.params.id);
-
-          case 3:
-            doc = _context6.sent;
-
-            if (!(doc == null)) {
-              _context6.next = 8;
-              break;
-            }
-
-            return _context6.abrupt("return", res.status(403).send({
-              error: 'doc not found.'
-            }));
-
-          case 8:
-            return _context6.abrupt("return", res.status(200).send(doc));
-
-          case 9:
-          case "end":
-            return _context6.stop();
-        }
-      }
-    }, _callee6);
-  }));
-
-  return function (_x15, _x16, _x17) {
-    return _ref6.apply(this, arguments);
-  };
-}()); // Get similar docs
-//
-//
-//
-//
-
-router.get('/:id/more',
-/*#__PURE__*/
-function () {
   var _ref7 = _asyncToGenerator(
   /*#__PURE__*/
   regeneratorRuntime.mark(function _callee7(req, res, next) {
-    var id, limit, doc, more_docs_uuid, more_docs;
+    var id, doc, user, liked;
     return regeneratorRuntime.wrap(function _callee7$(_context7) {
       while (1) {
         switch (_context7.prev = _context7.next) {
           case 0:
             id = req.params.id;
-            limit = req.query.limit || 10;
-            _context7.next = 4;
+            _context7.next = 3;
             return req.context.models.Doc.findByPk(req.params.id);
 
-          case 4:
+          case 3:
             doc = _context7.sent;
-            more_docs_uuid = query_sim(doc.uuid) || [];
-            _context7.next = 8;
-            return req.context.models.Doc.findAll({
-              where: {
-                uuid: _defineProperty({}, _sequelize["default"].Op.or, more_docs_uuid)
-              },
-              limit: limit
-            });
+
+            if (!(doc == null)) {
+              _context7.next = 8;
+              break;
+            }
+
+            return _context7.abrupt("return", res.status(403).send({
+              error: 'doc not found.'
+            }));
 
           case 8:
-            more_docs = _context7.sent;
-            more_docs.sort(function (doc1, doc2) {
-              return more_docs_uuid.indexOf(doc1.uuid) - more_docs_uuid.indexOf(doc2.uuid);
-            });
-            return _context7.abrupt("return", res.status(200).send(more_docs));
+            _context7.next = 10;
+            return verify(req, res);
 
-          case 11:
+          case 10:
+            user = _context7.sent;
+
+            if (!user) {
+              _context7.next = 16;
+              break;
+            }
+
+            _context7.next = 14;
+            return req.context.models.Like.findOne({
+              where: {
+                userId: user.id,
+                docId: doc.id
+              }
+            });
+
+          case 14:
+            liked = _context7.sent;
+
+            if (liked) {
+              doc.setDataValue('liked', true);
+            }
+
+          case 16:
+            return _context7.abrupt("return", res.status(200).send(doc));
+
+          case 17:
           case "end":
             return _context7.stop();
         }
@@ -437,66 +487,47 @@ function () {
   return function (_x18, _x19, _x20) {
     return _ref7.apply(this, arguments);
   };
-}()); // Delete doc
+}()); // Get similar docs
 //
 //
 //
 //
 
-router.post('/:id/delete',
+router.get('/:id/more',
 /*#__PURE__*/
 function () {
   var _ref8 = _asyncToGenerator(
   /*#__PURE__*/
   regeneratorRuntime.mark(function _callee8(req, res, next) {
-    var id, doc, user, has;
+    var id, limit, doc, more_docs_uuid, more_docs;
     return regeneratorRuntime.wrap(function _callee8$(_context8) {
       while (1) {
         switch (_context8.prev = _context8.next) {
           case 0:
             id = req.params.id;
-            _context8.next = 3;
+            limit = req.query.limit || 10;
+            _context8.next = 4;
             return req.context.models.Doc.findByPk(req.params.id);
 
-          case 3:
+          case 4:
             doc = _context8.sent;
-            _context8.next = 6;
-            return verify(req, res);
-
-          case 6:
-            user = _context8.sent;
-
-            if (!(user instanceof Error)) {
-              _context8.next = 10;
-              break;
-            }
-
-            res.status(401).send({
-              error: 'Invalid token.' + user.toString()
-            });
-            return _context8.abrupt("return");
-
-          case 10:
-            _context8.next = 12;
-            return user.hasDocs(doc);
-
-          case 12:
-            has = _context8.sent;
-
-            if (!has) {
-              _context8.next = 18;
-              break;
-            }
-
-            doc.destroy();
-            return _context8.abrupt("return", res.status(200).send(doc));
-
-          case 18:
-            res.status(401).send({
-              error: 'Invalid user.'
+            more_docs_uuid = query_sim(doc.uuid) || [];
+            _context8.next = 8;
+            return req.context.models.Doc.findAll({
+              where: {
+                uuid: _defineProperty({}, _sequelize["default"].Op.or, more_docs_uuid)
+              },
+              limit: limit
             });
 
-          case 19:
+          case 8:
+            more_docs = _context8.sent;
+            more_docs.sort(function (doc1, doc2) {
+              return more_docs_uuid.indexOf(doc1.uuid) - more_docs_uuid.indexOf(doc2.uuid);
+            });
+            return _context8.abrupt("return", res.status(200).send(more_docs));
+
+          case 11:
           case "end":
             return _context8.stop();
         }
@@ -507,6 +538,76 @@ function () {
   return function (_x21, _x22, _x23) {
     return _ref8.apply(this, arguments);
   };
+}()); // Delete doc
+//
+//
+//
+//
+
+router.post('/:id/delete',
+/*#__PURE__*/
+function () {
+  var _ref9 = _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee9(req, res, next) {
+    var id, doc, user, has;
+    return regeneratorRuntime.wrap(function _callee9$(_context9) {
+      while (1) {
+        switch (_context9.prev = _context9.next) {
+          case 0:
+            id = req.params.id;
+            _context9.next = 3;
+            return req.context.models.Doc.findByPk(req.params.id);
+
+          case 3:
+            doc = _context9.sent;
+            _context9.next = 6;
+            return verify(req, res);
+
+          case 6:
+            user = _context9.sent;
+
+            if (!(user instanceof Error)) {
+              _context9.next = 10;
+              break;
+            }
+
+            res.status(401).send({
+              error: 'Invalid token.' + user.toString()
+            });
+            return _context9.abrupt("return");
+
+          case 10:
+            _context9.next = 12;
+            return user.hasDocs(doc);
+
+          case 12:
+            has = _context9.sent;
+
+            if (!has) {
+              _context9.next = 18;
+              break;
+            }
+
+            doc.destroy();
+            return _context9.abrupt("return", res.status(200).send(doc));
+
+          case 18:
+            res.status(401).send({
+              error: 'Invalid user.'
+            });
+
+          case 19:
+          case "end":
+            return _context9.stop();
+        }
+      }
+    }, _callee9);
+  }));
+
+  return function (_x24, _x25, _x26) {
+    return _ref9.apply(this, arguments);
+  };
 }()); // Get Doc Meta
 //
 //
@@ -516,13 +617,13 @@ function () {
 router.get('/:uuid/meta',
 /*#__PURE__*/
 function () {
-  var _ref9 = _asyncToGenerator(
+  var _ref10 = _asyncToGenerator(
   /*#__PURE__*/
-  regeneratorRuntime.mark(function _callee9(req, res, next) {
+  regeneratorRuntime.mark(function _callee10(req, res, next) {
     var id, text, jsonObj, authors, date, keywords, meta;
-    return regeneratorRuntime.wrap(function _callee9$(_context9) {
+    return regeneratorRuntime.wrap(function _callee10$(_context10) {
       while (1) {
-        switch (_context9.prev = _context9.next) {
+        switch (_context10.prev = _context10.next) {
           case 0:
             id = req.params.uuid;
             text = fs.readFileSync("./public/meta/".concat(id, ".tei.xml"), 'utf8');
@@ -545,14 +646,109 @@ function () {
 
           case 8:
           case "end":
-            return _context9.stop();
+            return _context10.stop();
         }
       }
-    }, _callee9);
+    }, _callee10);
   }));
 
-  return function (_x24, _x25, _x26) {
-    return _ref9.apply(this, arguments);
+  return function (_x27, _x28, _x29) {
+    return _ref10.apply(this, arguments);
+  };
+}()); // Like doc
+//
+//
+//
+// return
+
+router.post('/:id/like',
+/*#__PURE__*/
+function () {
+  var _ref11 = _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee11(req, res, next) {
+    var id, doc, user, prev, Like;
+    return regeneratorRuntime.wrap(function _callee11$(_context11) {
+      while (1) {
+        switch (_context11.prev = _context11.next) {
+          case 0:
+            id = req.params.id;
+            _context11.next = 3;
+            return req.context.models.Doc.findByPk(req.params.id);
+
+          case 3:
+            doc = _context11.sent;
+            _context11.next = 6;
+            return verify(req, res);
+
+          case 6:
+            user = _context11.sent;
+
+            if (!(user instanceof Error)) {
+              _context11.next = 10;
+              break;
+            }
+
+            res.status(401).send({
+              error: 'Invalid token.' + user.toString()
+            });
+            return _context11.abrupt("return");
+
+          case 10:
+            _context11.prev = 10;
+            _context11.next = 13;
+            return req.context.models.Like.findOne({
+              where: {
+                docId: id,
+                userId: user.id
+              }
+            });
+
+          case 13:
+            prev = _context11.sent;
+
+            if (!prev) {
+              _context11.next = 18;
+              break;
+            }
+
+            prev.destroy();
+            res.status(200).send({
+              msg: 'you have deleted this like.'
+            });
+            return _context11.abrupt("return");
+
+          case 18:
+            _context11.next = 20;
+            return req.context.models.Like.create();
+
+          case 20:
+            Like = _context11.sent;
+            Like.setDoc(doc).then(function () {
+              return Like.setUser(user);
+            }).then(function () {
+              res.status(200).send(Like);
+            });
+            _context11.next = 27;
+            break;
+
+          case 24:
+            _context11.prev = 24;
+            _context11.t0 = _context11["catch"](10);
+            res.status(401).send({
+              error: 'Invalid like.'
+            });
+
+          case 27:
+          case "end":
+            return _context11.stop();
+        }
+      }
+    }, _callee11, null, [[10, 24]]);
+  }));
+
+  return function (_x30, _x31, _x32) {
+    return _ref11.apply(this, arguments);
   };
 }()); // Rate doc
 //
@@ -563,39 +759,39 @@ function () {
 router.post('/:id/rating',
 /*#__PURE__*/
 function () {
-  var _ref10 = _asyncToGenerator(
+  var _ref12 = _asyncToGenerator(
   /*#__PURE__*/
-  regeneratorRuntime.mark(function _callee10(req, res, next) {
+  regeneratorRuntime.mark(function _callee12(req, res, next) {
     var id, doc, user, prev, Rating, ratings, updated;
-    return regeneratorRuntime.wrap(function _callee10$(_context10) {
+    return regeneratorRuntime.wrap(function _callee12$(_context12) {
       while (1) {
-        switch (_context10.prev = _context10.next) {
+        switch (_context12.prev = _context12.next) {
           case 0:
             id = req.params.id;
-            _context10.next = 3;
+            _context12.next = 3;
             return req.context.models.Doc.findByPk(req.params.id);
 
           case 3:
-            doc = _context10.sent;
-            _context10.next = 6;
+            doc = _context12.sent;
+            _context12.next = 6;
             return verify(req, res);
 
           case 6:
-            user = _context10.sent;
+            user = _context12.sent;
 
             if (!(user instanceof Error)) {
-              _context10.next = 10;
+              _context12.next = 10;
               break;
             }
 
             res.status(401).send({
               error: 'Invalid token.' + user.toString()
             });
-            return _context10.abrupt("return");
+            return _context12.abrupt("return");
 
           case 10:
-            _context10.prev = 10;
-            _context10.next = 13;
+            _context12.prev = 10;
+            _context12.next = 13;
             return req.context.models.Rating.findOne({
               where: {
                 docId: id,
@@ -604,30 +800,30 @@ function () {
             });
 
           case 13:
-            prev = _context10.sent;
+            prev = _context12.sent;
 
             if (!prev) {
-              _context10.next = 17;
+              _context12.next = 17;
               break;
             }
 
             res.status(401).send({
               error: 'you have rated this item.'
             });
-            return _context10.abrupt("return");
+            return _context12.abrupt("return");
 
           case 17:
-            _context10.next = 19;
+            _context12.next = 19;
             return req.context.models.Rating.create(req.body);
 
           case 19:
-            Rating = _context10.sent;
+            Rating = _context12.sent;
             Rating.setDoc(doc).then(function () {
               return Rating.setUser(user);
             }).then(function () {
               res.status(200).send(Rating);
             });
-            _context10.next = 23;
+            _context12.next = 23;
             return req.context.models.Rating.findAll({
               where: {
                 docId: id
@@ -635,36 +831,36 @@ function () {
             });
 
           case 23:
-            ratings = _context10.sent;
+            ratings = _context12.sent;
             doc.rating = ratings.reduce(function (ac, cur) {
               return ac + cur.rating;
             }, 0.0) / ratings.length;
-            _context10.next = 27;
+            _context12.next = 27;
             return doc.update({
               rating: doc.rating
             });
 
           case 27:
-            updated = _context10.sent;
-            _context10.next = 33;
+            updated = _context12.sent;
+            _context12.next = 33;
             break;
 
           case 30:
-            _context10.prev = 30;
-            _context10.t0 = _context10["catch"](10);
+            _context12.prev = 30;
+            _context12.t0 = _context12["catch"](10);
             res.status(401).send({
               error: 'Invalid rating.'
             });
 
           case 33:
           case "end":
-            return _context10.stop();
+            return _context12.stop();
         }
       }
-    }, _callee10, null, [[10, 30]]);
+    }, _callee12, null, [[10, 30]]);
   }));
 
-  return function (_x27, _x28, _x29) {
-    return _ref10.apply(this, arguments);
+  return function (_x33, _x34, _x35) {
+    return _ref12.apply(this, arguments);
   };
 }());

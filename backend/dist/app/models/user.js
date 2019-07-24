@@ -26,6 +26,9 @@ var user = function user(sequelize, DataTypes) {
     User.hasMany(models.Doc, {
       onDelete: 'CASCADE'
     });
+    User.hasMany(models.Rating, {
+      onDelete: 'SET NULL'
+    });
   };
 
   User.findByLogin =

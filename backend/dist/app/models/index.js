@@ -16,7 +16,8 @@ exports.sequelize = sequelize;
 var models = {
   User: sequelize["import"]('./user'),
   Doc: sequelize["import"]('./doc'),
-  Rating: sequelize["import"]('./rating')
+  Rating: sequelize["import"]('./rating'),
+  Like: sequelize["import"]('./like')
 };
 Object.keys(models).forEach(function (key) {
   if ('associate' in models[key]) {
