@@ -205,7 +205,7 @@ router.get('/:id', async (req, res, next) => {
     // Verify
     const user = await verify(req, res)
 
-    if (user) {
+    if (!(user instanceof Error)) {
       const liked = await req.context.models.Like.findOne({
         where: {
           userId: user.id,

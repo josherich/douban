@@ -59,7 +59,7 @@ router.post('/', async (req, res, next) => {
   // Validator
   if (!validator.isEmpty(email) && !validator.isEmpty(name) &&
       !validator.isEmpty(pass) && validator.isEmail(email) &&
-      validator.isLength(name, {min: 2, max: 10})) {
+      validator.isLength(name, {min: 2, max: 20})) {
     // Generate token
     var token = jwt.sign({
       username: name,
