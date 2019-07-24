@@ -1,10 +1,15 @@
 <template>
-  <div class="author-view has-header">
-    <h1>{{name}}</h1>
+  <div class="like-view has-header">
+    <button
+      class="submit button liked"
+      disabled="true">
+      <i data-feather="heart"></i>
+    </button>
+
     <d-list mold="thumbnail" :items="docs"></d-list>
     <infinite-loading :on-infinite="onInfinite" ref="infiniteLoading">
       <loading slot="spinner"></loading>
-      <div slot="no-more">No more results.</div>
+      <div slot="no-more">No more liked.</div>
     </infinite-loading>
   </div>
 </template>
@@ -19,7 +24,7 @@ import DList from '../components/DList'
 import Loading from '../components/Loading'
 
 export default {
-  name: 'author-view',
+  name: 'like-view',
   components: { SubNav, List, DList, InfiniteLoading, Loading },
   data () {
     return {
@@ -29,22 +34,21 @@ export default {
   computed: {
     // Getting Vuex State from store/modules/activities
     ...mapState({
-      docs: state => state.docs.docQueryResult,
+      docs: state => state.docs.docLikedResult.map(e => e.doc),
       noMore: state => state.docs.noMoreQuery
     })
   },
   watch: {
     '$route' (to, from) {
-      this.queryDocs()
+      this.$store.dispatch({
+        type: 'queryLikedDoc'
+      })
     }
   },
   methods: {
-    queryDocs () {
-      const name = this.$route.params.name
-      this.name = name
+    queryLikedDocs () {
       this.$store.dispatch({
-        type: 'queryDoc',
-        queryStr: name
+        type: 'queryLikedDoc'
       })
     },
     // Using vue-infinite-loading
@@ -54,13 +58,16 @@ export default {
         return
       }
       setTimeout(() => {
-        this.queryDocs()
+        this.queryLikedDocs()
         $state.loaded()
       }, 1000)
     }
   },
-  created () {
-    this.queryDocs()
+  mounted () {
+    setTimeout(() => {
+      /* eslint-disable no-undef */
+      feather.replace()
+    }, 100)
   }
 }
 </script>
@@ -71,6 +78,11 @@ h1 {
   margin-bottom: 5rem;
 }
 
+button.liked {
+  margin-left: 1.8rem;
+  padding-left: 0;
+  margin-top: 3.8rem;
+}
 .author-view {
   margin-top: 12em;
 }

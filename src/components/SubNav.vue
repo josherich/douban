@@ -20,6 +20,9 @@
           <a href="#" @click.prevent="logout()">Sign out</a>
         </li>
         <li>
+          <router-link :to="{ name: 'LikedView'}">Liked</router-link>
+        </li>
+        <li>
           <router-link :to="{ name: 'NewDocView'}">New</router-link>
         </li>
         </template>

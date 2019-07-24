@@ -49,7 +49,6 @@ export default {
   created: function () {
     const q = this.$route.params.q
     if (q) {
-      // console.log(q)
       this.queryStr = q
       this.query()
     }

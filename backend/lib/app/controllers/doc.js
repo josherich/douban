@@ -148,6 +148,44 @@ router.get('/search', async (req, res, next) => {
   return res.status(200).send(docs)
 })
 
+// get likes by user
+//
+//
+//
+// return
+router.get('/likes', async (req, res, next) => {
+  const offset = req.query.start || 0
+  const limit = req.query.limit || 10
+
+  // Verify
+  const user = await verify(req, res)
+
+  if (user instanceof Error) {
+    res.status(401).send({
+      error: 'Invalid token.' + user.toString()
+    })
+    return
+  }
+
+  try {
+    const likes = await req.context.models.Like.findAll({
+      where: {
+        userId: user.id
+      },
+      include: [{
+          model: req.context.models.Doc
+      }],
+      offset: offset,
+      limit: limit
+    })
+    res.status(200).send(likes)
+  } catch (err) {
+    res.status(401).send({
+      error: 'no likes found.'
+    })
+  }
+})
+
 // Get one
 //
 //
@@ -164,6 +202,21 @@ router.get('/:id', async (req, res, next) => {
       error: 'doc not found.'
     })
   } else {
+    // Verify
+    const user = await verify(req, res)
+
+    if (user) {
+      const liked = await req.context.models.Like.findOne({
+        where: {
+          userId: user.id,
+          docId: doc.id
+        }
+      })
+      if (liked) {
+        doc.setDataValue('liked', true)
+      }
+    }
+
     return res.status(200).send(doc)
   }
 })
@@ -255,6 +308,59 @@ router.get('/:uuid/meta', async (req, res, next) => {
   }
 
   res.status(200).send(meta)
+})
+
+
+// Like doc
+//
+//
+//
+// return
+router.post('/:id/like', async (req, res, next) => {
+  let id = req.params.id
+
+  const doc = await req.context.models.Doc.findByPk(
+    req.params.id,
+  )
+
+  // Verify
+  const user = await verify(req, res)
+
+  if (user instanceof Error) {
+    res.status(401).send({
+      error: 'Invalid token.' + user.toString()
+    })
+    return
+  }
+
+  try {
+    const prev = await req.context.models.Like.findOne({
+      where: {
+        docId: id,
+        userId: user.id
+      }
+    })
+
+    if (prev) {
+      prev.destroy()
+      res.status(200).send({
+        msg: 'you have deleted this like.'
+      })
+      return
+    }
+
+    const Like = await req.context.models.Like.create()
+    Like.setDoc(doc).then(() => {
+      return Like.setUser(user)
+    }).then(() => {
+      res.status(200).send(Like)
+    });
+
+  } catch (err) {
+    res.status(401).send({
+      error: 'Invalid like.'
+    })
+  }
 })
 
 // Rate doc

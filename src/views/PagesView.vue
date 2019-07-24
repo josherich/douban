@@ -2,6 +2,7 @@
   <div class="pages-view">
     <header-bar @showTalion="open"></header-bar>
     <router-view></router-view>
+    <div class="footer"></div>
     <talion-view v-show="talion" @closeTalion="close"></talion-view>
   </div>
 </template>
@@ -30,5 +31,7 @@ export default {
 </script>
 
 <style scoped>
-
+.footer {
+  margin: 20px 0;
+}
 </style>

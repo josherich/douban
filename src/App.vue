@@ -61,6 +61,21 @@ a {
   cursor: pointer;
 }
 
+.button {
+  margin: 10px 0;
+  text-align: center;
+  background: rgba(0,0,0,0);
+  border: none;
+  font-size: 1.4em;
+  color: #4a4a4a;
+  cursor: pointer;
+}
+
+.liked svg {
+  fill: #ea4c89;
+  stroke: #ea4c89;
+}
+
 // Common style
 .header-bar {
   position: fixed;

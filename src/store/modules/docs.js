@@ -15,20 +15,28 @@ const state = {
   docItem: {},
   docMeta: {},
   similarDocs: [],
-  docQueryResult: []
+  docQueryResult: [],
+  docLikedResult: []
 }
 
 const mutations = {
   loadMoreDocs (state, payload) {
     state.skip += 10
-    state.docs = state.docs.concat(payload.res)
+    state.docs = state.docs.concat(payload.res.filter(d => d.title.length > 0))
     if (payload.res.length < state.perPage) {
       state.noMore = true
     }
   },
   queryDoc (state, payload) {
     state.skipQuery += 10
-    state.docQueryResult = state.docQueryResult.concat(payload.res)
+    state.docQueryResult = state.docQueryResult.concat(payload.res.filter(d => d.title.length > 0))
+    if (payload.res.length < state.perPage) {
+      state.noMoreQuery = true
+    }
+  },
+  queryLikedDoc (state, payload) {
+    state.skipQuery += 10
+    state.docLikedResult = state.docLikedResult.concat(payload.res)
     if (payload.res.length < state.perPage) {
       state.noMoreQuery = true
     }
@@ -37,7 +45,7 @@ const mutations = {
     state.docItem = payload.res
   },
   getSimilarDocs (state, payload) {
-    state.similarDocs = payload.res
+    state.similarDocs = payload.res.filter(d => d.title.length > 0)
   },
   getDocMeta (state, payload) {
     state.docMeta = payload.res
@@ -84,6 +92,19 @@ const actions = {
         })
     })
   },
+  likedoc ({ commit }, payload) {
+    return new Promise((resolve, reject) => {
+      request
+        .post(config.api + `/doc/${payload.id}/like`)
+        .set('Authorization', 'Bearer ' + localStorage.getItem('token'))
+        .send(payload)
+        .then(res => {
+          resolve(res)
+        }, err => {
+          reject(err)
+        })
+    })
+  },
   deletedoc ({ commit }, payload) {
     return new Promise((resolve, reject) => {
       request
@@ -123,8 +144,8 @@ const actions = {
   getSingleDoc ({commit, state}, payload) {
     return new Promise((resolve, reject) => {
       request
-        .get(config.api + '/doc/' + payload.id)
-        // .use(jsonp)
+        .get(config.api + `/doc/${payload.id}`)
+        .set('Authorization', 'Bearer ' + localStorage.getItem('token'))
         .end((err, res) => {
           if (!err) {
             commit({
@@ -181,6 +202,22 @@ const actions = {
           if (!err) {
             commit({
               type: 'queryDoc',
+              res: res.body
+            })
+            resolve(res)
+          }
+        })
+    })
+  },
+  queryLikedDoc ({ commit, state }, payload) {
+    return new Promise((resolve, reject) => {
+      request
+        .get(config.api + `/doc/likes?start=${state.skipQuery}&count=10`)
+        .set('Authorization', 'Bearer ' + localStorage.getItem('token'))
+        .end((err, res) => {
+          if (!err) {
+            commit({
+              type: 'queryLikedDoc',
               res: res.body
             })
             resolve(res)

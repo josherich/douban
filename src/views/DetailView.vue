@@ -5,9 +5,17 @@
         <h2>
           {{docItem.title}}
         </h2>
-        <div class="poster">
-          <img :src="docItem.image" alt="">
-        </div>
+
+        <form method="post" @submit.prevent="onLike()">
+          <div class="form-submit form-like">
+            <button
+              class="submit button"
+              type="submit"
+              :class="{liked: liked}">
+              <i data-feather="heart"></i>
+            </button>
+          </div>
+        </form>
 
         <div class="detail">
           <span>Authors:&nbsp;&nbsp;</span>
@@ -75,6 +83,7 @@
 
     </template>
     <img v-if="docItem.uuid" class="thumbnail" v-bind:src="config.api + '/thumbs/' + docItem.uuid + '.pdf.jpg'" />
+
     <loading v-show="showLoading"></loading>
     <h1 class="related-title">Related Papers</h1>
     <d-list class="similar-docs" mold="thumbnail" :items="similarDocs"></d-list>
@@ -125,7 +134,8 @@ export default {
       showLoading: true,
       isDisabled: false,
       config: config,
-      rated: false
+      rated: false,
+      liked: false
     }
   },
   filters: {
@@ -171,6 +181,15 @@ export default {
         this.rated = true
       })
     },
+    onLike: function () {
+      const id = this.$route.params.id
+      this.$store.dispatch({
+        type: 'likedoc',
+        id: id
+      }).then(res => {
+        this.liked = !this.liked
+      })
+    },
     beforeSubmit: function () {
       // console.log('Submiting...')
       this.isDisabled = true
@@ -200,7 +219,6 @@ export default {
       })
     },
     onGetSimilarDocs: function (res) {
-      console.log(res)
       // Dispatching getSingleEvent
       this.$store.dispatch({
         type: 'getSimilarDocs',
@@ -218,9 +236,16 @@ export default {
       id: id
     }).then(res => {
       // Success handle
+      this.liked = this.docItem.liked
       this.onGetSimilarDocs(res)
       this.showLoading = false
     })
+  },
+  mounted () {
+    setTimeout(() => {
+      /* eslint-disable no-undef */
+      feather.replace()
+    }, 100)
   }
 }
 </script>
@@ -298,7 +323,9 @@ h1.related-title {
     margin-left: 0;
   }
 }
-
+.form-like {
+  text-align: right;
+}
 .describe {
   h2 {
     color: #072;

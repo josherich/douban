@@ -10,6 +10,7 @@ import RegisterView from '../views/RegisterView'
 import NewDocView from '../views/NewDocView'
 import EditView from '../views/EditDocView'
 import AuthorView from '../views/AuthorView'
+import LikedView from '../views/LikedView'
 
 Vue.use(Router)
 
@@ -46,6 +47,11 @@ export default new Router({
           path: '/author/:name',
           name: 'AuthorView',
           component: AuthorView
+        },
+        {
+          path: '/liked',
+          name: 'LikedView',
+          component: LikedView
         }
       ]
     },

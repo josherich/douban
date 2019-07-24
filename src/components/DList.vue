@@ -9,7 +9,7 @@
             class="thumbnail"
             :to="{name: 'DetailView', params: { id: item.id }}"><h3>{{item.title}}</h3></router-link>
 
-          <div class="thumbnail">
+          <div v-if="item.author.length > 0" class="thumbnail">
             <template v-for="author in item.author">
               <router-link class="" :to="{name: 'AuthorView', params: { name: author }}"><span class="name">{{author}}</span></router-link>
             </template>
@@ -68,10 +68,11 @@ export default {
 <style lang='scss' scoped>
 .d-list {
   .row {
-    margin: 1em 0;
+    margin: 4em 0;
   }
   .download {
-    margin-left: 1.8rem;
+    margin-right: 1.8rem;
+    text-align: right;
   }
   .thumbnail {
     position: relative;
@@ -102,6 +103,7 @@ export default {
       color: #aaa;
       font-size: 1.2rem;
       overflow: hidden;
+      margin: 0;
     }
 
     img {
