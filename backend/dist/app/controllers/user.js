@@ -109,7 +109,7 @@ function () {
 
             if (!(!validator.isEmpty(email) && !validator.isEmpty(name) && !validator.isEmpty(pass) && validator.isEmail(email) && validator.isLength(name, {
               min: 2,
-              max: 10
+              max: 20
             }))) {
               _context2.next = 17;
               break;

@@ -453,7 +453,7 @@ function () {
           case 10:
             user = _context7.sent;
 
-            if (!user) {
+            if (user instanceof Error) {
               _context7.next = 16;
               break;
             }
