@@ -11,3 +11,8 @@ Douban for academic notes, a fork of [douban clone](https://github.com/jeneser/d
 export NODE_ENV=production
 npx sequelize-cli db:migrate
 ```
+
+### import new resource
+```
+npx babel-node lib/scripts/import.js ./data_path ./public_path
+```

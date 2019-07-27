@@ -82,20 +82,30 @@ const createFromFile = (obj) => {
       pubdate: meta['pubdate'],
       uri: obj['uri'],
       uuid: obj['uuid'],
-      summary: meta['abstracts']
+      summary: meta['abstracts'],
+      publisher: obj['page']
     }
   } catch (e) {
     return {
       title: obj['filename'].split('.')[0],
       uri: obj['uri'],
       uuid: obj['uuid'],
-      summary: obj['page']
+      summary: obj['page'],
+      publisher: obj['page']
     }
   }
 }
 
 let docs_to_write = Object.keys(file_dict).map(id => {
   return createFromFile(file_dict[id])
+})
+
+docs_to_write = docs_to_write.filter((d) => {
+  return await models.Doc.findOne({
+    where: {
+      uri: d['uri']
+    }
+  });
 })
 
 models.Doc.bulkCreate(docs_to_write)
