@@ -100,7 +100,7 @@ let docs_to_write = Object.keys(file_dict).map(id => {
   return createFromFile(file_dict[id])
 })
 
-docs_to_write = docs_to_write.filter((d) => {
+docs_to_write = docs_to_write.filter(async (d) => {
   return await models.Doc.findOne({
     where: {
       uri: d['uri']

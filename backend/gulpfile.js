@@ -15,6 +15,15 @@ gulp.task('compile', function () {
   return stream
 })
 
+gulp.task('copy_frontend_release', function () {
+  return gulp.src('../dist/**/*')
+   .pipe(gulp.dest('../tmp/frontend'))
+})
+gulp.task('copy_backend_release', function () {
+  return gulp.src('../backend/dist/**/*')
+   .pipe(gulp.dest('../tmp/backend'))
+})
+
 gulp.task('develop', ['compile'], function (done) {
   livereload.listen();
   nodemon({
@@ -44,5 +53,7 @@ gulp.task('default', [
 
 gulp.task('release', [
   'compile',
-  'production:views'
+  'production:views',
+  'copy_frontend_release',
+  'copy_backend_release'
 ]);
