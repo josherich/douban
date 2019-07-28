@@ -27,7 +27,7 @@ if (process.argv.length < 4) {
 
 var data_path = process.argv[2];
 var public_path = process.argv[3];
-var list_csv = fs.readFileSync("".concat(data_path, "/list.csv"), 'utf8');
+var list_csv = fs.readFileSync("".concat(data_path, "/../list.csv"), 'utf8');
 var file_list = list_csv.split('\n').slice(1).map(function (e) {
   return e.split(',');
 });
@@ -35,13 +35,15 @@ var file_dict = {};
 file_list.filter(function (row) {
   return row.length === 6;
 }).map(function (row) {
-  var id = row[1].split('/')[2].replace('.pdf', '');
-  file_dict[id] = {
-    uri: row[2],
-    page: row[3],
-    filename: row[0],
-    uuid: id
-  };
+  if (fs.existsSync(path.join(data_path, row[1].split('/')[2]))) {
+    var id = row[1].split('/')[2].replace('.pdf', '');
+    file_dict[id] = {
+      uri: row[2],
+      page: row[3],
+      filename: row[0],
+      uuid: id
+    };
+  }
 });
 var txt_folder = fs.readdirSync("".concat(data_path, ".txt")).forEach(function (file) {
   var text = fs.readFileSync(path.join("".concat(data_path, ".txt"), file), 'utf8');
