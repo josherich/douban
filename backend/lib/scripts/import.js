@@ -15,7 +15,7 @@ if (process.argv.length < 4) {
 const data_path = process.argv[2]
 const public_path = process.argv[3]
 
-const list_csv = fs.readFileSync(`${data_path}/list.csv`, 'utf8')
+const list_csv = fs.readFileSync(`${data_path}/../list.csv`, 'utf8')
 
 const file_list = list_csv.split('\n').slice(1).map((e) => {
   return e.split(',')
@@ -26,12 +26,14 @@ const file_dict = {}
 file_list
 .filter(row => row.length === 6)
 .map(row => {
-  let id = row[1].split('/')[2].replace('.pdf', '')
-  file_dict[id] = {
-    uri: row[2],
-    page: row[3],
-    filename: row[0],
-    uuid: id
+  if (fs.existsSync(path.join(data_path, row[1].split('/')[2]))) {
+    let id = row[1].split('/')[2].replace('.pdf', '')
+    file_dict[id] = {
+      uri: row[2],
+      page: row[3],
+      filename: row[0],
+      uuid: id
+    }
   }
 })
 
