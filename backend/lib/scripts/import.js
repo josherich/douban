@@ -37,17 +37,6 @@ file_list
   }
 })
 
-const txt_folder = fs.readdirSync(`${data_path}.txt`)
-.forEach(file => {
-  let text = fs.readFileSync(path.join(`${data_path}.txt`, file), 'utf8')
-  let uuid = file.split('.')[0]
-  if (file_dict[uuid])
-    file_dict[uuid]['title'] = text.split('\n')[0]
-  else {
-    console.log('txt file id not found in csv', uuid)
-  }
-})
-
 // copy thumb folder to public
 const thumb_folder = fs.readdirSync(`${data_path}.thumb`)
 .forEach(file => {
